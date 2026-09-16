@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NLeeson/table/results/schema.json",
+  "title": "table IR benchmark result",
+  "type": "object",
+  "required": [
+    "benchmark_version",
+    "model",
+    "reasoning_effort",
+    "task_id",
+    "correct",
+    "score",
+    "input_tokens",
+    "reasoning_tokens",
+    "output_tokens",
+    "latency_ms",
+    "candidate_sha256"
+  ],
+  "properties": {
+    "benchmark_version": {"type": "string"},
+    "run_id": {"type": ["string", "null"]},
+    "model": {"type": "string"},
+    "reasoning_effort": {
+      "type": "string",
+      "enum": ["none", "low", "medium", "high", "xhigh", "max"]
+    },
+    "task_id": {"type": "string"},
+    "task_seed": {"type": ["integer", "string", "null"]},
+    "correct": {"type": "boolean"},
+    "baseline_throughput": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "candidate_throughput": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "speedup": {"type": ["number", "null"], "minimum": 0},
+    "score": {"type": "number", "minimum": 0},
+    "input_tokens": {"type": "integer", "minimum": 0},
+    "reasoning_tokens": {"type": "integer", "minimum": 0},
+    "output_tokens": {"type": "integer", "minimum": 0},
+    "latency_ms": {"type": "number", "minimum": 0},
+    "cost_usd": {"type": ["number", "null"], "minimum": 0},
+    "candidate_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "candidate_ir_path": {"type": ["string", "null"]},
+    "llvm_version": {"type": ["string", "null"]},
+    "alive2_revision": {"type": ["string", "null"]},
+    "target_triple": {"type": ["string", "null"]},
+    "mcpu": {"type": ["string", "null"]},
+    "error": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}
