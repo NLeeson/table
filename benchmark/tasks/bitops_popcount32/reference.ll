@@ -1,0 +1,19 @@
+define i32 @kernel(i32 %x) {
+entry:
+  %s1 = lshr i32 %x, 1
+  %m1 = and i32 %s1, 1431655765
+  %a = sub i32 %x, %m1
+
+  %a_lo = and i32 %a, 858993459
+  %s2 = lshr i32 %a, 2
+  %a_hi = and i32 %s2, 858993459
+  %b = add i32 %a_lo, %a_hi
+
+  %s4 = lshr i32 %b, 4
+  %c0 = add i32 %b, %s4
+  %c = and i32 %c0, 252645135
+
+  %d = mul i32 %c, 16843009
+  %r = lshr i32 %d, 24
+  ret i32 %r
+}
