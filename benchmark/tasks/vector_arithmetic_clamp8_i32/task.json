@@ -1,0 +1,18 @@
+{
+  "task_id": "vector_arithmetic_clamp8_i32",
+  "family": "vector_arithmetic",
+  "generator_version": "smoke-v0",
+  "seed": 1005,
+  "semantic_parameters": {
+    "operation": "mul_add_then_signed_clamp",
+    "element_type": "i32",
+    "lanes": 8,
+    "mul": 3,
+    "add": 7,
+    "min": -100,
+    "max": 100,
+    "arithmetic": "wrapping-before-clamp"
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {"same_function_name": true, "single_function": true, "no_globals": true, "no_external_calls": true, "no_inline_asm": true, "no_target_intrinsics": true}
+}
