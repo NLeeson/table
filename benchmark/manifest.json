@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "benchmark": "table-irbench-mini",
+  "benchmark_version": "0.1.0",
+  "description": "Deterministic semantic-preserving LLVM IR optimization benchmark",
+  "task_policy": {
+    "pure_single_function": true,
+    "allow_globals": false,
+    "allow_external_calls": false,
+    "allow_inline_asm": false,
+    "allow_target_intrinsics": false,
+    "max_candidate_bytes": 65536
+  },
+  "toolchain": {
+    "llvm_version": "PIN_ME",
+    "alive2_revision": "PIN_ME",
+    "target_triple": "x86_64-unknown-linux-gnu",
+    "mcpu": "PIN_ME",
+    "llc_args": ["-O3"],
+    "llvm_mca_args": []
+  },
+  "families": [
+    {"name": "reductions", "instances": 4},
+    {"name": "scans", "instances": 4},
+    {"name": "sorting_selection", "instances": 4},
+    {"name": "bitops", "instances": 4},
+    {"name": "vector_arithmetic", "instances": 4},
+    {"name": "permutations", "instances": 4}
+  ],
+  "scoring": {
+    "correctness_gate": "alive-tv",
+    "performance_metric": "llvm-mca Block RThroughput",
+    "task_score": "baseline_throughput / candidate_throughput",
+    "invalid_score": 0,
+    "aggregate_speedup": "geometric_mean_of_correct_tasks",
+    "efficiency_metric": "reasoning_tokens / score"
+  }
+}
