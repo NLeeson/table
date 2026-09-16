@@ -1,0 +1,9 @@
+{
+  "task_id": "permutations_reverse8_i32",
+  "family": "permutations",
+  "generator_version": "smoke-v0",
+  "seed": 1006,
+  "semantic_parameters": {"operation": "reverse_lanes", "element_type": "i32", "lanes": 8},
+  "prompt_version": "ir-opt-v0",
+  "constraints": {"same_function_name": true, "single_function": true, "no_globals": true, "no_external_calls": true, "no_inline_asm": true, "no_target_intrinsics": true}
+}
