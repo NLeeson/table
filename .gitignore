@@ -9,6 +9,7 @@ venv/
 *.s
 *.bc
 *.o
+a.out
 
 # Keep run metadata/candidates intentionally committed when desired;
 # ignore only common transient editor files.
