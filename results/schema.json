@@ -32,7 +32,9 @@
     "speedup": {"type": ["number", "null"], "minimum": 0},
     "score": {"type": "number", "minimum": 0},
     "input_tokens": {"type": "integer", "minimum": 0},
-    "reasoning_tokens": {"type": "integer", "minimum": 0},
+    "cached_input_tokens": {"type": "integer", "minimum": 0},
+    "cache_write_input_tokens": {"type": "integer", "minimum": 0},
+    "reasoning_tokens": {"type": ["integer", "null"], "minimum": 0},
     "output_tokens": {"type": "integer", "minimum": 0},
     "latency_ms": {"type": "number", "minimum": 0},
     "cost_usd": {"type": ["number", "null"], "minimum": 0},
@@ -42,6 +44,9 @@
     "alive2_revision": {"type": ["string", "null"]},
     "target_triple": {"type": ["string", "null"]},
     "mcpu": {"type": ["string", "null"]},
+    "codex_version": {"type": ["string", "null"]},
+    "prompt_version": {"type": ["string", "null"]},
+    "forbidden_tool_types": {"type": "array", "items": {"type": "string"}},
     "error": {"type": ["string", "null"]}
   },
   "additionalProperties": true
