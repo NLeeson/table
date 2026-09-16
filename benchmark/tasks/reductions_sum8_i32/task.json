@@ -1,0 +1,20 @@
+{
+  "task_id": "reductions_sum8_i32",
+  "family": "reductions",
+  "generator_version": "smoke-v0",
+  "seed": 1001,
+  "semantic_parameters": {
+    "operation": "wrapping_sum",
+    "element_type": "i32",
+    "lanes": 8
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}
