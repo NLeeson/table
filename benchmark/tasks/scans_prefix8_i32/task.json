@@ -1,0 +1,21 @@
+{
+  "task_id": "scans_prefix8_i32",
+  "family": "scans",
+  "generator_version": "smoke-v0",
+  "seed": 1002,
+  "semantic_parameters": {
+    "operation": "inclusive_prefix_sum",
+    "element_type": "i32",
+    "lanes": 8,
+    "arithmetic": "wrapping"
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}
