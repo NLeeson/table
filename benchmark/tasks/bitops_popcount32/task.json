@@ -1,0 +1,9 @@
+{
+  "task_id": "bitops_popcount32",
+  "family": "bitops",
+  "generator_version": "smoke-v0",
+  "seed": 1004,
+  "semantic_parameters": {"operation": "population_count", "element_type": "i32", "bits": 32},
+  "prompt_version": "ir-opt-v0",
+  "constraints": {"same_function_name": true, "single_function": true, "no_globals": true, "no_external_calls": true, "no_inline_asm": true, "no_target_intrinsics": true}
+}
