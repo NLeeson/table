@@ -12,10 +12,10 @@
     "max_candidate_bytes": 65536
   },
   "toolchain": {
-    "llvm_version": "PIN_ME",
-    "alive2_revision": "PIN_ME",
+    "llvm_version": "21.1",
+    "alive2_revision": "21.0",
     "target_triple": "x86_64-unknown-linux-gnu",
-    "mcpu": "PIN_ME",
+    "mcpu": "avx2",
     "llc_args": ["-O3"],
     "llvm_mca_args": []
   },
