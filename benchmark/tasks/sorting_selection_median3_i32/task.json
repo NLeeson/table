@@ -1,0 +1,9 @@
+{
+  "task_id": "sorting_selection_median3_i32",
+  "family": "sorting_selection",
+  "generator_version": "smoke-v0",
+  "seed": 1003,
+  "semantic_parameters": {"operation": "signed_median_of_3", "element_type": "i32"},
+  "prompt_version": "ir-opt-v0",
+  "constraints": {"same_function_name": true, "single_function": true, "no_globals": true, "no_external_calls": true, "no_inline_asm": true, "no_target_intrinsics": true}
+}
