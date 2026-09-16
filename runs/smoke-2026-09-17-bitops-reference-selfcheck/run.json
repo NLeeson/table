@@ -1,0 +1,18 @@
+{
+  "run_id": "smoke-2026-09-17-bitops-reference-selfcheck",
+  "kind": "evaluator_selfcheck",
+  "task_id": "bitops_popcount32",
+  "description": "Reference-vs-reference smoke check of the evaluator pipeline. This is not a model benchmark result.",
+  "benchmark_manifest_commit": "8742d9f23a89e999a9d7a294a008cac6a946ad5b",
+  "toolchain_contract": {
+    "llvm_version": "22.1.0",
+    "alive2_revision": "0dc2be5f04ccb61caebb909a610968cb2348f196",
+    "target_triple": "x86_64-unknown-linux-gnu",
+    "mcpu": "haswell",
+    "isa_intent": "AVX2",
+    "llc_args": ["-O3"]
+  },
+  "command": "python3 evaluator/verify.py benchmark/tasks/bitops_popcount32/reference.ll benchmark/tasks/bitops_popcount32/reference.ll --mcpu=haswell",
+  "source": "manual local execution",
+  "notes": "The current evaluator does not yet independently verify installed binary versions against the manifest; the toolchain block above records the repository contract for this run."
+}
