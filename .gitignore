@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.DS_Store
+
+# Local evaluator scratch/output
+*.s
+*.bc
+*.o
+
+# Keep run metadata/candidates intentionally committed when desired;
+# ignore only common transient editor files.
+*~
+*.swp
