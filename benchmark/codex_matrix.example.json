@@ -1,0 +1,8 @@
+{
+  "matrix": [
+    {"model": "gpt-5.6-luna", "efforts": ["high", "max"]},
+    {"model": "gpt-5.6-terra", "efforts": ["high", "max"]},
+    {"model": "gpt-5.6-sol", "efforts": ["high", "max"]},
+    {"model": "gpt-6-astra", "efforts": ["high", "max"]}
+  ]
+}
