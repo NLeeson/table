@@ -1,0 +1,19 @@
+{
+  "kind": "evaluator_selfcheck_result",
+  "task_id": "bitops_popcount32",
+  "reference_equals_candidate": true,
+  "alive2": {
+    "verdict": "correct",
+    "syntactically_equal": true,
+    "correct_transformations": 1,
+    "incorrect_transformations": 0,
+    "failed_to_prove_transformations": 0,
+    "alive2_errors": 0
+  },
+  "baseline_throughput": 4.5,
+  "candidate_throughput": 4.5,
+  "speedup": 1.0,
+  "score": 1.0,
+  "correct": true,
+  "candidate_sha256": "9e870a5671ac18f0e7d56fe27e9bc5d242f0f07a2f8ee19e3c05c4d9e88520ae"
+}
