@@ -15,7 +15,8 @@
     "llvm_version": "21.1",
     "alive2_revision": "21.0",
     "target_triple": "x86_64-unknown-linux-gnu",
-    "mcpu": "avx2",
+    "mcpu": "haswell",
+    "isa_intent": "AVX2",
     "llc_args": ["-O3"],
     "llvm_mca_args": []
   },
