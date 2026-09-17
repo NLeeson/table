@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0ad49-efea-7b21-aa29-98c9365adf52"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because failed to spawn code-mode host /home/user/workspace/codex/codex-rs/target/release/codex-code-mode-host: host executable was not found. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"ir\":\"define i32 @kernel(i32 %a, i32 %b, i32 %c) {\\nentry:\\n  %ab = icmp slt i32 %a, %b\\n  %lo_ab = select i1 %ab, i32 %a, i32 %b\\n  %hi_ab = select i1 %ab, i32 %b, i32 %a\\n  %hic = icmp slt i32 %hi_ab, %c\\n  %mid_candidate = select i1 %hic, i32 %hi_ab, i32 %c\\n  %loc = icmp slt i32 %lo_ab, %c\\n  %median = select i1 %loc, i32 %mid_candidate, i32 %lo_ab\\n  ret i32 %median\\n}\\n\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":11982,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":15724,"reasoning_output_tokens":15538}}

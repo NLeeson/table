@@ -1,0 +1,48 @@
+{
+  "benchmark": "table-irbench-mini",
+  "benchmark_git_head": "3440c2fc155c9b3731d5344b71ccef79155bed9c",
+  "benchmark_version": "0.1.0",
+  "codex_isolation": {
+    "ephemeral": true,
+    "ignore_rules": true,
+    "ignore_user_config": true,
+    "sandbox": "read-only",
+    "strict_config": true,
+    "tool_use_policy": "any command/file/MCP/collab/web-search event invalidates the task",
+    "web_search": "disabled",
+    "working_directory": "fresh temporary directory per task"
+  },
+  "codex_version": "codex-cli 0.0.0",
+  "created_at": "2026-09-17T02:49:25.829628+00:00",
+  "matrix": [
+    {
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "high"
+    },
+    {
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "max"
+    }
+  ],
+  "prompt_version": "codex-ir-v1",
+  "run_id": "codex-20260917T024925Z",
+  "tasks": [
+    "bitops_popcount32",
+    "permutations_reverse8_i32",
+    "reductions_sum8_i32",
+    "scans_prefix8_i32",
+    "sorting_selection_median3_i32",
+    "vector_arithmetic_clamp8_i32"
+  ],
+  "toolchain": {
+    "alive2_revision": "0dc2be5f04ccb61caebb909a610968cb2348f196",
+    "isa_intent": "AVX2",
+    "llc_args": [
+      "-O3"
+    ],
+    "llvm_mca_args": [],
+    "llvm_version": "22.1.0",
+    "mcpu": "haswell",
+    "target_triple": "x86_64-unknown-linux-gnu"
+  }
+}

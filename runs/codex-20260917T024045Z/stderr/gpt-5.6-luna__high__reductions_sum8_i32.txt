@@ -1,0 +1,1 @@
+codex-bare: unknown option --ephemeral; use --help for usage

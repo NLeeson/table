@@ -1,0 +1,12 @@
+codex-bare — stateless multi-task orchestration with no client-side preprompt
+
+Usage: codex-bare [OPTIONS] [PROMPT...]
+
+Options:
+  -m, --model MODEL          Model name (default: gpt-5.6-sol)
+  -r, --reasoning EFFORT     Send an explicit reasoning effort
+  -h, --help                 Print this help
+
+If PROMPT is omitted, codex-bare reads the first user message from stdin and
+continues reading one user message per line while the session is active.
+Authentication comes only from the existing Codex ChatGPT login.
