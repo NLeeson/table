@@ -134,6 +134,8 @@ This single-call POC is the gate before spending time on multiple efforts, model
 
 `benchmark/run_codex.py` starts a fresh ephemeral Codex session for every task/configuration. It pins the model and reasoning effort explicitly, ignores user/project config and rules, disables web search, runs from a fresh temporary directory, captures the final answer through a JSON schema, and invalidates an attempt if the Codex JSONL stream shows shell commands, file edits, MCP/plugin calls, subagents, or web search.
 
+`--timeout` is a hard model-generation deadline (900 seconds by default), not a best-so-far checkpoint. The configured value is frozen in `run.json` as `model_timeout_seconds`. On expiry the runner preserves partial event/stderr logs, records `timeout_stage: "model"`, and keeps the attempt non-verified with score zero; partial model output is never treated as candidate IR. Independent LLVM/Alive2/MCA timeouts are recorded as `timeout_stage: "evaluator"` with `verification_status: "evaluator_error"`. Find timed-out tasks with `jq -c 'select(has("timeout_stage"))' runs/<run_id>/results.jsonl`.
+
 Use `--codex` to select an alternative Codex executable and supply fixed arguments. The value is parsed with shell-style quoting and used as the command prefix for both `--version` and `exec` invocations:
 
 ```bash
@@ -201,6 +203,7 @@ Each model/task attempt records source facts rather than derived mirrors:
 - latency
 - cost, when available
 - raw candidate IR path or content hash
+- timeout stage (`model` or `evaluator`) when a deadline expires
 
 Correctness (`verification_status == verified`) and task score are derived when results are consumed; neither is persisted in attempt rows.
 

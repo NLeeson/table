@@ -31,6 +31,15 @@ def run(cmd: list[str], *, timeout: float) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, check=True, text=True, capture_output=True, timeout=timeout)
 
 
+def captured_text(value: str | bytes | None) -> str:
+    """Normalize subprocess diagnostics, including TimeoutExpired byte output."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
 def parse_alive2_summary(stdout: str) -> tuple[str, dict[str, int] | None]:
     """Classify the single-function Alive2 summary, failing closed."""
     matches = list(_ALIVE2_SUMMARY.finditer(stdout))
@@ -108,7 +117,8 @@ def main() -> None:
         result.update(verification_fields("evaluator_error"))
         result["error"] = str(exc)
         if isinstance(exc, subprocess.TimeoutExpired):
-            result["stderr"] = (exc.stderr or "").strip()
+            result["timeout_stage"] = "evaluator"
+            result["stderr"] = captured_text(exc.stderr).strip()
         print_result(result)
         return
 
@@ -127,8 +137,10 @@ def main() -> None:
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         result.update(verification_fields("evaluator_error"))
         result["error"] = str(exc)
+        if isinstance(exc, subprocess.TimeoutExpired):
+            result["timeout_stage"] = "evaluator"
         if isinstance(exc, (subprocess.CalledProcessError, subprocess.TimeoutExpired)):
-            result["stderr"] = (exc.stderr or "").strip()
+            result["stderr"] = captured_text(exc.stderr).strip()
         print_result(result)
         return
 
@@ -164,8 +176,10 @@ def main() -> None:
         result.pop("candidate_throughput", None)
         result.update(verification_fields("evaluator_error"))
         result["error"] = str(exc)
+        if isinstance(exc, subprocess.TimeoutExpired):
+            result["timeout_stage"] = "evaluator"
         if isinstance(exc, (subprocess.CalledProcessError, subprocess.TimeoutExpired)):
-            result["stderr"] = (exc.stderr or "").strip()
+            result["stderr"] = captured_text(exc.stderr).strip()
 
     print_result(result)
 

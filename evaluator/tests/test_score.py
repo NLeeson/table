@@ -140,6 +140,34 @@ class ScoreTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unknown result fields"):
             summarize([result])
 
+    def test_model_timeout_provenance_requires_invalid_status(self) -> None:
+        result = row("a", "invalid", 0.0, None)
+        result["candidate_sha256"] = None
+        result["timeout_stage"] = "model"
+        self.assertEqual(summarize([result])[0]["verified"], 0)
+
+        result["verification_status"] = "evaluator_error"
+        with self.assertRaisesRegex(ValueError, "model timeout requires invalid status"):
+            summarize([result])
+
+        result["verification_status"] = "invalid"
+        result["candidate_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "must not contain candidate artifacts"):
+            summarize([result])
+
+    def test_evaluator_timeout_provenance_requires_evaluator_error(self) -> None:
+        result = row("a", "evaluator_error", 0.0, None)
+        result["timeout_stage"] = "evaluator"
+        self.assertEqual(summarize([result])[0]["verified"], 0)
+
+        result["timeout_stage"] = "unknown"
+        with self.assertRaisesRegex(ValueError, "invalid timeout_stage"):
+            summarize([result])
+
+        result["timeout_stage"] = []
+        with self.assertRaisesRegex(ValueError, "invalid timeout_stage"):
+            summarize([result])
+
     def test_different_task_sets_are_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "task sets"):
             summarize(

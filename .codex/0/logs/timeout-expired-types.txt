@@ -1,0 +1,3 @@
+bytes b'{"type":"turn.started"}\n'
+bytes b'partial error\n'
+TypeError data must be str, not bytes

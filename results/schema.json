@@ -65,6 +65,7 @@
     "events_path": {"type": "string", "minLength": 1},
     "forbidden_tool_types": {"type": "array", "items": {"type": "string"}},
     "jsonl_parse_errors": {"type": "integer", "minimum": 0},
+    "timeout_stage": {"type": "string", "enum": ["model", "evaluator"]},
     "alive2_summary": {
       "type": ["object", "null"],
       "properties": {
@@ -98,6 +99,28 @@
           },
           {"properties": {"error": {"type": "string", "minLength": 1}}}
         ]
+      }
+    },
+    {
+      "if": {
+        "required": ["timeout_stage"],
+        "properties": {"timeout_stage": {"const": "model"}}
+      },
+      "then": {
+        "properties": {
+          "verification_status": {"const": "invalid"},
+          "candidate_ir_path": {"const": null},
+          "candidate_sha256": {"const": null}
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["timeout_stage"],
+        "properties": {"timeout_stage": {"const": "evaluator"}}
+      },
+      "then": {
+        "properties": {"verification_status": {"const": "evaluator_error"}}
       }
     }
   ]

@@ -14,6 +14,7 @@ REASONING_EFFORTS = ("none", "low", "medium", "high", "xhigh", "max")
 VERIFICATION_STATUSES = frozenset(
     {VERIFIED, "incorrect", "unproven", "invalid", "evaluator_error"}
 )
+TIMEOUT_STAGES = frozenset({"model", "evaluator"})
 RESULT_REQUIRED_FIELDS = frozenset(
     {
         "benchmark_version",
@@ -45,7 +46,7 @@ RESULT_REQUIRED_FIELDS = frozenset(
     }
 )
 RESULT_OPTIONAL_FIELDS = frozenset(
-    {"baseline_throughput", "candidate_throughput", "alive2_summary"}
+    {"baseline_throughput", "candidate_throughput", "alive2_summary", "timeout_stage"}
 )
 RESULT_FIELDS = RESULT_REQUIRED_FIELDS | RESULT_OPTIONAL_FIELDS
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -179,6 +180,20 @@ def validate_result_row(row: Mapping[str, Any], *, benchmark_version: str) -> No
             raise ContractError("verified result must not contain an error")
     elif not isinstance(row["error"], str) or not row["error"]:
         raise ContractError("non-verified result requires a non-empty error")
+
+    if "timeout_stage" in row:
+        timeout_stage = row["timeout_stage"]
+        if not isinstance(timeout_stage, str) or timeout_stage not in TIMEOUT_STAGES:
+            raise ContractError(f"invalid timeout_stage: {timeout_stage!r}")
+        expected_status = "invalid" if timeout_stage == "model" else "evaluator_error"
+        if row["verification_status"] != expected_status:
+            raise ContractError(
+                f"{timeout_stage} timeout requires {expected_status} status"
+            )
+        if timeout_stage == "model" and (
+            row["candidate_ir_path"] is not None or row["candidate_sha256"] is not None
+        ):
+            raise ContractError("model timeout must not contain candidate artifacts")
 
     summary = row.get("alive2_summary")
     if summary is not None:

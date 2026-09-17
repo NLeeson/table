@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import io
 import json
 import shutil
 import subprocess
 import sys
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 EVALUATOR = ROOT / "evaluator"
@@ -13,6 +16,7 @@ FIXTURES = EVALUATOR / "tests" / "fixtures"
 REFERENCE = ROOT / "benchmark" / "tasks" / "bitops_popcount32" / "reference.ll"
 sys.path.insert(0, str(EVALUATOR))
 
+import verify as verify_module  # noqa: E402
 from verify import parse_alive2_summary  # noqa: E402
 from contracts import task_score  # noqa: E402
 
@@ -56,6 +60,35 @@ class Alive2SummaryTests(unittest.TestCase):
         status, counts = parse_alive2_summary("unexpected output")
         self.assertEqual(status, "evaluator_error")
         self.assertIsNone(counts)
+
+
+class EvaluatorTimeoutTests(unittest.TestCase):
+    @patch("verify.run")
+    def test_tool_timeout_has_structured_provenance(self, run) -> None:
+        run.side_effect = subprocess.TimeoutExpired(
+            ["llvm-as"], 0.1, stderr=b"partial evaluator stderr\xff\n"
+        )
+        stdout = io.StringIO()
+        with (
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "verify.py",
+                    str(REFERENCE),
+                    str(REFERENCE),
+                    "--mcpu=haswell",
+                    "--tool-timeout=0.1",
+                ],
+            ),
+            redirect_stdout(stdout),
+        ):
+            verify_module.main()
+
+        result = json.loads(stdout.getvalue())
+        self.assertEqual(result["verification_status"], "evaluator_error")
+        self.assertEqual(result["timeout_stage"], "evaluator")
+        self.assertEqual(result["stderr"], "partial evaluator stderr\ufffd")
 
 
 @unittest.skipUnless(

@@ -114,6 +114,45 @@ def parse_events(stdout: str) -> tuple[list[dict[str, Any]], dict[str, Any] | No
     return events, usage, bad_lines
 
 
+def captured_text(value: str | bytes | None) -> str:
+    """Normalize output captured on both normal and timeout subprocess paths."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
+def invoke_codex(
+    cmd: list[str],
+    *,
+    prompt: str,
+    cwd: Path,
+    timeout: float,
+) -> tuple[str, str, int | None, str | None, str | None]:
+    """Run one Codex process and return durable output plus failure provenance."""
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=prompt,
+            cwd=cwd,
+            text=True,
+            capture_output=True,
+            timeout=timeout,
+        )
+        return proc.stdout, proc.stderr, proc.returncode, None, None
+    except subprocess.TimeoutExpired as exc:
+        return (
+            captured_text(exc.stdout),
+            captured_text(exc.stderr),
+            None,
+            f"Codex timed out after {timeout:g}s",
+            "model",
+        )
+    except OSError as exc:
+        return "", "", None, f"failed to launch Codex: {exc}", None
+
+
 def tool_types(events: list[dict[str, Any]]) -> list[str]:
     found: set[str] = set()
     for event in events:
@@ -275,6 +314,7 @@ def main() -> int:
         "benchmark_git_head": git_head(),
         "prompt_version": PROMPT_VERSION,
         "codex_version": codex_version,
+        "model_timeout_seconds": args.timeout,
         "matrix": [{"model": m, "reasoning_effort": e} for m, e in pairs],
         "tasks": [p.name for p in tasks],
         "toolchain": toolchain,
@@ -332,27 +372,17 @@ def main() -> int:
             ]
 
             start = time.perf_counter()
-            stdout = ""
-            stderr = ""
-            returncode: int | None = None
-            timeout_error: str | None = None
             with tempfile.TemporaryDirectory(prefix="table-codex-") as tmp:
-                try:
-                    proc = subprocess.run(
-                        cmd,
-                        input=prompt_for(reference, triple=toolchain["target_triple"], mcpu=toolchain["mcpu"]),
-                        cwd=tmp,
-                        text=True,
-                        capture_output=True,
-                        timeout=args.timeout,
-                    )
-                    stdout, stderr, returncode = proc.stdout, proc.stderr, proc.returncode
-                except subprocess.TimeoutExpired as exc:
-                    stdout = exc.stdout or ""
-                    stderr = exc.stderr or ""
-                    timeout_error = f"Codex timed out after {args.timeout:g}s"
-                except OSError as exc:
-                    timeout_error = f"failed to launch Codex: {exc}"
+                stdout, stderr, returncode, process_error, timeout_stage = invoke_codex(
+                    cmd,
+                    prompt=prompt_for(
+                        reference,
+                        triple=toolchain["target_triple"],
+                        mcpu=toolchain["mcpu"],
+                    ),
+                    cwd=Path(tmp),
+                    timeout=args.timeout,
+                )
             latency_ms = (time.perf_counter() - start) * 1000.0
             events_path.write_text(stdout)
             stderr_path.write_text(stderr)
@@ -371,8 +401,10 @@ def main() -> int:
             row["events_path"] = str(events_path.relative_to(ROOT))
             row["forbidden_tool_types"] = forbidden
             row["jsonl_parse_errors"] = len(bad_event_lines)
+            if timeout_stage is not None:
+                row["timeout_stage"] = timeout_stage
 
-            error: str | None = timeout_error
+            error: str | None = process_error
             if error is None and returncode != 0:
                 error = f"Codex exited {returncode}"
             if error is None and bad_event_lines:
@@ -428,6 +460,7 @@ def main() -> int:
                         "candidate_throughput",
                         "candidate_sha256",
                         "alive2_summary",
+                        "timeout_stage",
                     ):
                         if key in verified:
                             row[key] = verified[key]

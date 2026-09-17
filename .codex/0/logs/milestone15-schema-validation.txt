@@ -1,0 +1,1 @@
+validated 147 current-version historical rows, 2 timeout rows, and 2 rejected mismatches

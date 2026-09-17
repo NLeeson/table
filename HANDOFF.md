@@ -101,6 +101,7 @@ It must:
 * preserve Codex event JSONL;
 * preserve candidate IR;
 * record token usage and latency;
+* preserve partial logs and record `timeout_stage` as `model` or `evaluator` when a deadline expires;
 * evaluate candidate through the frozen evaluator;
 * append canonical result rows;
 * attest completed runs.

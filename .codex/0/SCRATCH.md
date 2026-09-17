@@ -1,11 +1,19 @@
 # Living Scratchpad (SSoT)
 
-**Current Milestone Context**: Complete — approved Strategy 3 implemented and validated.
-**Timestamp**: 2026-09-17
+**Current Milestone Context**: Complete — approved fail-closed timeout handling implemented and validated.
+**Timestamp**: 2026-09-18
 
 ---
 
 ## 1. Shortest Causal Chain & Working Hypotheses
+- **Timeout Query**: `benchmark/run_codex.py --timeout` is passed to `subprocess.run` around the Codex process. Expiry kills Codex, sets `timeout_error`, and thereby prevents response parsing and verification. The base row remains `invalid`, with derived score zero.
+- **Evaluator Timeout**: `evaluator/verify.py --tool-timeout` defaults to 60 seconds per LLVM/Alive2/MCA subprocess. Expiry returns `evaluator_error`, with no throughput and score zero.
+- **New Root Cause**: `subprocess.TimeoutExpired.stdout` and `.stderr` are bytes when captured, even under `text=True`. The runner assigns those values directly and calls `Path.write_text`, which requires strings. A timeout after partial output therefore raises `TypeError` before a result row or completion attestation can be written.
+- **Observability Gap**: Timeout provenance is represented only by free-text `error`; there is no typed failure-stage/reason field. Existing stored result rows contain zero timeout error matches.
+- **As-Is Boundary**: Arbitrary in-progress reasoning is not a candidate IR. Only a complete schema-valid candidate materialized before/at the deadline could be verified; current code rejects it whenever a timeout occurred.
+- **Implemented Outcome**: `invoke_codex` normalizes timeout bytes, partial event/stderr logs are durable, and new timeout rows carry conditional `timeout_stage` provenance (`model` with `invalid`; `evaluator` with `evaluator_error`). `run.json` freezes `model_timeout_seconds`. Historical rows need no rewrite.
+- **Current Query**: Increasing stochastic samples per task is not exposed by a runner parameter. The CLI enumerates one call for every model/effort/task product, and the scorer forbids duplicate `(run_id, model, effort, task)` attempts.
+- **Current Recommendation**: Launch the same plan multiple times with unique `--run-id` values, then analyze samples across those completed runs; implementing an in-run repeat count would require adding a replicate identity throughout metadata, filenames, completion validation, scoring, and comparison.
 - **Observed Behavior**: Normal-client Terra Low has verified scores `1` and `9.285714...` at `0` and `90` reasoning tokens plus an incorrect scan at score/token `0/0`. Its aggregate `1000 * sum(score) / sum(tokens) = 114.285714...`; removing the failed scan yields exactly the same value. Terra High analogously yields `97.035...` from 106 tokens.
 - **Root Responsibility**: `evaluator/score.py` defines efficiency as a ratio of totals. A zero-score/zero-token task is the additive identity in both totals, so the statistic cannot observe the failure even though `task_score()` correctly returns zero.
 - **Working Hypothesis**: Confirmed. Tagged task outcomes and paired Pareto comparison retain task identity, so a zero-score/zero-token failure cannot disappear into pooled totals.
@@ -13,6 +21,18 @@
 ---
 
 ## 2. Targeted Evidence & Symbols
+- `benchmark/run_codex.py:334-398`: timeout capture, log persistence, and the `error is None` gates that skip candidate parsing/evaluation.
+- `evaluator/verify.py:86-168`: independent 60-second evaluator-tool deadlines map to `evaluator_error`.
+- `evaluator/contracts.py:17-50`: exact result contract has a free-text `error` but no typed failure provenance.
+- `.codex/0/logs/timeout-expired-types.txt`: focused reproduction shows captured stdout/stderr are bytes and `Path.write_text` raises `TypeError`.
+- `.codex/0/logs/timeout-results.tsv`: bounded scan found zero timeout-tagged historical result rows.
+- `.codex/0/logs/milestone15-focused-tests.txt`: 34 focused runner, scorer/contract, and verifier tests pass.
+- `.codex/0/logs/milestone15-schema-validation.txt`: 147 current-version historical rows and both timeout variants validate; mismatched timeout/status pairs are rejected.
+- `.codex/0/logs/milestone15-existing-run-score.json`: existing completed run still scores unchanged.
+- `benchmark/run_codex.py:192-226`: complete runner argument list; no repeats/samples option, and duplicate model/effort pairs are rejected.
+- `benchmark/run_codex.py:296-308`: exactly one invocation and one artifact path per model/effort/task.
+- `evaluator/score.py:33-53`: duplicate attempt identity is rejected and mixed run IDs cannot be scored together.
+- `.codex/0/logs/run-codex-help.txt`: captured bounded CLI help output.
 - `evaluator/contracts.py`: executable outcome invariants and result schema version.
 - `evaluator/verify.py`: strict Alive2 summary classification, explicit function selection, and subprocess timeouts.
 - `evaluator/score.py`: validated result sets, correct-only geomean, failure-inclusive score, and all-attempt reasoning efficiency.
@@ -35,6 +55,9 @@
 ---
 
 ## 3. Pending Actions & Edge Cases
+- [x] Implement approved Strategy 1 and preserve the hard-timeout/zero-score policy.
+- [x] Add model-timeout end-to-end persistence and evaluator-timeout JSON regressions.
+- [x] Validate schema compatibility, existing-run scoring, compilation, and diff hygiene.
 - [x] Trace completion state and every score/efficiency consumer.
 - [x] Demonstrate the precise false-positive calculation.
 - [x] Present three strategies and wait for approval per root-cause protocol.

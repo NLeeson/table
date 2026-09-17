@@ -1,0 +1,49 @@
+E........E.....E..
+======================================================================
+ERROR: test_run_codex (unittest.loader._FailedTest.test_run_codex)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_run_codex
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/loader.py", line 162, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_run_codex.py", line 13, in <module>
+    from benchmark.run_codex import invoke_codex  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'invoke_codex' from 'benchmark.run_codex' (/home/user/workspace/agentspace/table/benchmark/run_codex.py)
+
+
+======================================================================
+ERROR: test_evaluator_timeout_provenance_requires_evaluator_error (evaluator.tests.test_score.ScoreTests.test_evaluator_timeout_provenance_requires_evaluator_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 155, in test_evaluator_timeout_provenance_requires_evaluator_error
+    self.assertEqual(summarize([result])[0]["verified"], 0)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/home/user/workspace/agentspace/table/evaluator/score.py", line 69, in summarize
+    validate_result_set(rows)
+  File "/home/user/workspace/agentspace/table/evaluator/score.py", line 41, in validate_result_set
+    validate_result_row(row, benchmark_version=benchmark_version)
+  File "/home/user/workspace/agentspace/table/evaluator/contracts.py", line 122, in validate_result_row
+    raise ContractError(f"unknown result fields: {sorted(unknown)!r}")
+contracts.ContractError: unknown result fields: ['timeout_stage']
+
+======================================================================
+ERROR: test_model_timeout_provenance_requires_invalid_status (evaluator.tests.test_score.ScoreTests.test_model_timeout_provenance_requires_invalid_status)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 146, in test_model_timeout_provenance_requires_invalid_status
+    self.assertEqual(summarize([result])[0]["verified"], 0)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/home/user/workspace/agentspace/table/evaluator/score.py", line 69, in summarize
+    validate_result_set(rows)
+  File "/home/user/workspace/agentspace/table/evaluator/score.py", line 41, in validate_result_set
+    validate_result_row(row, benchmark_version=benchmark_version)
+  File "/home/user/workspace/agentspace/table/evaluator/contracts.py", line 122, in validate_result_row
+    raise ContractError(f"unknown result fields: {sorted(unknown)!r}")
+contracts.ContractError: unknown result fields: ['timeout_stage']
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.006s
+
+FAILED (errors=3)

@@ -1,0 +1,18 @@
+usage: run_codex.py [-h] (--matrix MATRIX | --model MODEL)
+                    [--effort {high,low,max,medium,none,xhigh}] [--task TASK]
+                    [--run-id RUN_ID] [--codex CODEX] [--timeout TIMEOUT]
+                    [--dry-run]
+
+Run the frozen IR benchmark through Codex CLI model/reasoning configurations.
+
+options:
+  -h, --help            show this help message and exit
+  --matrix MATRIX       JSON model/effort matrix
+  --model MODEL         model; repeat for a Cartesian product
+  --effort {high,low,max,medium,none,xhigh}
+  --task TASK           task id; default is all frozen tasks
+  --run-id RUN_ID
+  --codex CODEX         Codex executable and optional fixed arguments, parsed
+                        with shell-style quoting
+  --timeout TIMEOUT     seconds per Codex invocation
+  --dry-run

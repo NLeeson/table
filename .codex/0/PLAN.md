@@ -1,6 +1,6 @@
 # Living Plan (SSoT)
 
-**Objective**: Make incomplete task completion an explicit worst outcome in every per-task and aggregate statistic while preserving authoritative measured token data.
+**Objective**: Maintain the benchmark's statistical/result-contract integrity and answer the current runner-usage question from executable evidence.
 **Status**: Completed
 
 ---
@@ -31,10 +31,10 @@ The manifest documents these names and populations, but executable normalization
 ---
 
 ## Active Milestone
-- [x] **Milestone 13 — Validate paired comparison output**
-  - Run focused metric, comparison, and scorer tests.
-  - Compare the existing normal and modified-client hard-3 runs per task.
-  - Confirm historical pooled Terra observations remain unchanged and explicitly descriptive.
+- [x] **Milestone 15 — Make timeout outcomes explicit and durable**
+  - Normalize captured timeout output before log persistence.
+  - Persist typed `model` versus `evaluator` timeout provenance.
+  - Add focused regressions and synchronize the executable/schema/documented contracts.
 
 ---
 
@@ -44,6 +44,9 @@ The manifest documents these names and populations, but executable normalization
 ---
 
 ## Completed Milestones
+- [x] **Milestone 15 — Make timeout outcomes explicit and durable**: Model timeouts now decode and preserve partial output, produce completed zero-score attempts with `timeout_stage=model`, and freeze the configured deadline in run metadata; evaluator tool timeouts produce JSON-safe `timeout_stage=evaluator` results. Thirty-four focused tests and schema/backward-compatibility checks pass.
+- [x] **Milestone 15a — Diagnose timeout behavior**: Model timeouts hard-kill Codex and skip candidate evaluation; evaluator-tool timeouts derive `evaluator_error`. A captured-output type mismatch can crash model-timeout persistence whenever partial output exists.
+- [x] **Milestone 14 — Identify repeated-sampling control**: There is no repeat-count parameter; each run permits one attempt per `(run_id, model, effort, task)`, so repeated samples currently require distinct run IDs.
 - [x] **Milestone 12 — Implement the approved representation**
   - Added focused regression tests for zero-token verified and zero-token non-verified tasks.
   - Implemented tagged task outcomes, Pareto comparison, and the paired run comparison utility.
@@ -83,3 +86,6 @@ The manifest documents these names and populations, but executable normalization
 - **2026-09-17**: The benchmark contract now explicitly selects defined external inputs with manifest `toolchain.alive2_args=["--disable-undef-input"]`; the strict Alive2 summary gate remains unchanged.
 - **2026-09-17**: Diagnosis: ratio-of-sums efficiency is not failure-sensitive when a non-verified task records both zero score and zero reasoning tokens; adding or removing that task leaves the ratio unchanged. Raw measurements remain authoritative.
 - **2026-09-17**: Approved Strategy 3 implemented: non-verified results are the task-domain bottom, verified pairs use score/token Pareto dominance, and pooled score-per-1k is retained only as a descriptive tagged value.
+- **2026-09-17**: `benchmark/run_codex.py` has no `--runs`, `--repeats`, or samples-per-task option. `--timeout` controls invocation duration, not sample count; duplicate attempts inside one run are forbidden by the result contract.
+- **2026-09-17**: `--timeout` currently means a hard model-generation deadline, not a request to score a best-so-far candidate. Timeout rows are intended to retain `verification_status=invalid` and an error string, but `TimeoutExpired` returns captured bytes and the runner passes them to `Path.write_text`, so common partial-output timeouts abort before the row is persisted.
+- **2026-09-18**: User approved Strategy 1: preserve fail-closed timeout semantics, safely persist partial logs, and add typed timeout-stage provenance without rewriting historical run artifacts.
