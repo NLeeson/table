@@ -28,11 +28,11 @@ The manifest documents these names and populations, but executable normalization
 ---
 
 ## Active Milestone
-- [x] **Milestone 8 — Eliminate remaining secondary authorities**
-  - Persist `verification_status` as the sole correctness fact; derive correctness instead of storing `correct`.
-  - Persist measured throughputs as the sole performance facts; derive task score instead of storing both `speedup` and `score`.
-  - Use the current manifest benchmark version as the only accepted version; remove the parallel result-schema version channel.
-  - Make result rows closed and exact: reject unknown fields, null/missing run ids, arbitrary benchmark versions, and unreachable metric inputs.
+- [x] **Milestone 9 — Make run completion explicit and fail closed**
+  - Write a completion attestation only after every planned attempt has emitted exactly one validated row.
+  - Bind the attestation to the run id, current benchmark version, exact attempt count, and results-file digest.
+  - Make the scorer require `run.json`, the completion attestation, exact plan coverage, and a matching digest.
+  - Raise on missing/incomplete/interrupted artifacts; never synthesize absent tasks or aggregate partial rows.
 
 ---
 
@@ -55,6 +55,8 @@ The manifest documents these names and populations, but executable normalization
 - [x] **Milestone 6 — Align documentation and invalidate bad runs**: Versioned the manifest/result contract to v2, synchronized metric definitions, and marked all v0.1 runs invalid.
 - [x] **Milestone 7 — Targeted validation and handoff**: 22 focused tests, six reference self-checks, schema validation, compilation, and diff hygiene all pass.
 - [x] **Milestone 8 — Eliminate remaining secondary authorities**: Removed persisted derived fields and parallel schema versioning; exact current-version rows now fail closed on missing, unknown, or contradictory facts.
+- [x] **Milestone 9 — Make run completion explicit and fail closed**: Added atomic digest-bound completion attestations and exact plan coverage; interrupted, partial, duplicated, or mutated runs raise before aggregation.
+- [x] **Milestone 10 — Make the defined-input contract executable**: Declared Alive2's `--disable-undef-input` policy once in the manifest, loaded it from the verifier, and confirmed the minimal Luna/Low run completes.
 
 ---
 
@@ -65,3 +67,6 @@ The manifest documents these names and populations, but executable normalization
 - **2026-09-17**: The parallel result-schema version channel was removed; the scorer accepts only the current `benchmark_version` read from the manifest.
 - **2026-09-17**: SSoT correction: strict validation of redundant fields is still weaker than having no redundant persisted fields. Remove the mirrors rather than maintaining them.
 - **2026-09-17**: Missing usage and candidate hashes are represented as `null`; zero values and all-zero hashes are not used as unknown-value sentinels.
+- **2026-09-17**: A task failure is a completed zero-score attempt; a missing attempt is a failed run and is never scored.
+- **2026-09-17**: The Luna/Low `ctpop` candidate failed because Alive2 timed out while modeling undef inputs. It proves when `--disable-undef-input` is used, but changing that semantic domain requires an explicit benchmark-contract decision and was not done implicitly.
+- **2026-09-17**: The benchmark contract now explicitly selects defined external inputs with manifest `toolchain.alive2_args=["--disable-undef-input"]`; the strict Alive2 summary gate remains unchanged.

@@ -8,11 +8,14 @@ Recommended shape:
 runs/<run_id>/
   run.json
   results.jsonl
+  completed.json
   candidates/
     <task_id>.ll
 ```
 
 `run.json` should freeze the model/config matrix, benchmark manifest commit, generated task set, toolchain versions, pricing snapshot (if cost is reported), and invocation parameters.
+
+`completed.json` is written atomically after exact plan coverage is validated. It binds the run id, benchmark version, attempt count, and `results.jsonl` digest. Its absence means the run is incomplete; the scorer must raise instead of aggregating partial rows.
 
 Do not overwrite prior runs. New benchmark/toolchain/model settings should produce a new run id so historical comparisons remain auditable.
 

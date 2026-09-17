@@ -16,6 +16,7 @@ from contracts import (
     VERIFIED,
     ContractError,
     task_score,
+    validate_completion,
     validate_result_row,
 )
 
@@ -132,12 +133,49 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+def load_completed_rows(jsonl: Path) -> list[dict[str, Any]]:
+    if jsonl.name != "results.jsonl":
+        raise ContractError("scorer requires a run's canonical results.jsonl")
+    run_path = jsonl.parent / "run.json"
+    completion_path = jsonl.parent / "completed.json"
+    if not run_path.is_file():
+        raise ContractError(f"missing run metadata: {run_path}")
+    if not completion_path.is_file():
+        raise ContractError(f"run is incomplete: missing {completion_path}")
+
+    lines = jsonl.read_text().splitlines()
+    if not lines:
+        raise ContractError("results.jsonl is empty")
+    rows: list[dict[str, Any]] = []
+    for line_number, line in enumerate(lines, 1):
+        if not line:
+            raise ContractError(f"blank results.jsonl line: {line_number}")
+        value = json.loads(line)
+        if not isinstance(value, dict):
+            raise ContractError(f"result line {line_number} is not an object")
+        rows.append(value)
+
+    run_meta = json.loads(run_path.read_text())
+    completion = json.loads(completion_path.read_text())
+    if not isinstance(run_meta, dict) or not isinstance(completion, dict):
+        raise ContractError("run metadata and completion attestation must be objects")
+    manifest = json.loads(MANIFEST.read_text())
+    validate_completion(
+        run_meta,
+        completion,
+        rows,
+        jsonl,
+        benchmark_version=manifest["benchmark_version"],
+    )
+    return rows
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("jsonl", type=Path)
     args = parser.parse_args()
 
-    rows = [json.loads(line) for line in args.jsonl.read_text().splitlines() if line.strip()]
+    rows = load_completed_rows(args.jsonl)
     print(json.dumps(summarize(rows), indent=2, sort_keys=True))
 
 

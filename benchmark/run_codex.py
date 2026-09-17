@@ -24,9 +24,12 @@ sys.path.insert(0, str(ROOT / "evaluator"))
 from contracts import (  # noqa: E402
     REASONING_EFFORTS,
     ContractError,
+    completion_record,
+    file_sha256,
     task_score,
     validate_attempt,
     validate_result_row,
+    validate_run_rows,
     verification_fields,
 )
 
@@ -219,6 +222,8 @@ def main() -> int:
         if not args.effort:
             parser.error("--effort is required with --model")
         pairs = [(m, e) for m in args.model for e in args.effort]
+    if len(pairs) != len(set(pairs)):
+        parser.error("model/reasoning matrix contains duplicate configurations")
 
     manifest = json.loads(MANIFEST.read_text())
     toolchain = manifest["toolchain"]
@@ -444,6 +449,19 @@ def main() -> int:
                 + (f" error={error}" if error else ""),
                 flush=True,
             )
+
+    rows = [json.loads(line) for line in results_path.read_text().splitlines()]
+    validate_run_rows(run_meta, rows, benchmark_version=manifest["benchmark_version"])
+    completion = completion_record(
+        run_meta,
+        attempts=len(rows),
+        results_sha256=file_sha256(results_path),
+        completed_at=datetime.now(timezone.utc).isoformat(),
+    )
+    completion_path = run_dir / "completed.json"
+    pending_completion_path = run_dir / ".completed.json.tmp"
+    pending_completion_path.write_text(json.dumps(completion, indent=2, sort_keys=True) + "\n")
+    pending_completion_path.replace(completion_path)
 
     print(f"\nrun: {run_dir}")
     print(f"results: {results_path}")

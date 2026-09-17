@@ -18,7 +18,7 @@ The first benchmark target is **semantic-preserving LLVM IR optimization**. A mo
 For each task:
 
 1. `llvm-as` / verifier accepts the candidate IR.
-2. `alive-tv` checks candidate refinement/equivalence against the reference. The evaluator requires exactly one correct transformation and rejects counterexamples, failures-to-prove, Alive2 errors, malformed summaries, and zero matched functions.
+2. `alive-tv` checks candidate refinement/equivalence against the reference using the manifest's explicit input-domain flags. The evaluator requires exactly one correct transformation and rejects counterexamples, failures-to-prove, Alive2 errors, malformed summaries, and zero matched functions.
 3. Reference and candidate are lowered with the same frozen LLVM version and flags.
 4. `llvm-mca` estimates throughput for the same fixed CPU model.
 5. Incorrect/invalid candidates receive a score of `0`.
@@ -154,11 +154,13 @@ python3 benchmark/run_codex.py \
   --dry-run
 ```
 
-Each `results.jsonl` row contains the evaluator score plus Codex token usage, including `reasoning_output_tokens` when exposed by the installed CLI. Aggregate a completed run with:
+Each `results.jsonl` row contains verification and measurement source facts plus Codex token usage, including `reasoning_output_tokens` when exposed by the installed CLI. Aggregate a completed run with:
 
 ```bash
 python3 evaluator/score.py runs/<run_id>/results.jsonl
 ```
+
+The runner writes `completed.json` only after every `(model, reasoning effort, task)` in `run.json` has produced exactly one validated result row. The scorer requires that attestation, exact plan coverage, and a matching `results.jsonl` digest. An interrupted or partial run raises an error and is never aggregated; a completed non-verified attempt remains a derived zero-score result.
 
 ## Result record
 
@@ -192,6 +194,7 @@ The benchmark is only comparable when these are pinned and recorded:
 
 - LLVM version
 - Alive2 version/commit
+- Alive2 invocation flags (including the defined-input policy)
 - target triple
 - `llc` flags
 - `llvm-mca` CPU model

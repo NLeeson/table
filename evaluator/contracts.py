@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 VERIFIED = "verified"
@@ -47,6 +49,9 @@ RESULT_OPTIONAL_FIELDS = frozenset(
 )
 RESULT_FIELDS = RESULT_REQUIRED_FIELDS | RESULT_OPTIONAL_FIELDS
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+COMPLETION_FIELDS = frozenset(
+    {"run_id", "benchmark_version", "completed_at", "attempts", "results_sha256"}
+)
 
 
 class ContractError(ValueError):
@@ -189,3 +194,117 @@ def validate_result_row(row: Mapping[str, Any], *, benchmark_version: str) -> No
             for value in summary.values()
         ):
             raise ContractError("alive2_summary counts must be non-negative integers")
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def planned_attempt_keys(
+    run_meta: Mapping[str, Any], *, benchmark_version: str
+) -> frozenset[tuple[str, str, str]]:
+    if run_meta.get("benchmark_version") != benchmark_version:
+        raise ContractError(f"run benchmark_version must be {benchmark_version!r}")
+    run_id = run_meta.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        raise ContractError("run_id must be a non-empty string")
+
+    matrix = run_meta.get("matrix")
+    tasks = run_meta.get("tasks")
+    if not isinstance(matrix, list) or not matrix:
+        raise ContractError("run matrix must be a non-empty array")
+    if not isinstance(tasks, list) or not tasks or not all(
+        isinstance(task, str) and task for task in tasks
+    ):
+        raise ContractError("run tasks must be a non-empty array of task ids")
+    if len(tasks) != len(set(tasks)):
+        raise ContractError("run tasks contain duplicates")
+
+    configs: list[tuple[str, str]] = []
+    for entry in matrix:
+        if not isinstance(entry, Mapping) or set(entry) != {"model", "reasoning_effort"}:
+            raise ContractError("run matrix entry has an invalid shape")
+        model = entry["model"]
+        effort = entry["reasoning_effort"]
+        if not isinstance(model, str) or not model:
+            raise ContractError("run matrix model must be a non-empty string")
+        if effort not in REASONING_EFFORTS:
+            raise ContractError(f"invalid run matrix reasoning_effort: {effort!r}")
+        configs.append((model, effort))
+    if len(configs) != len(set(configs)):
+        raise ContractError("run matrix contains duplicate configurations")
+
+    return frozenset((model, effort, task) for model, effort in configs for task in tasks)
+
+
+def validate_run_rows(
+    run_meta: Mapping[str, Any],
+    rows: list[dict[str, Any]],
+    *,
+    benchmark_version: str,
+) -> None:
+    expected = planned_attempt_keys(run_meta, benchmark_version=benchmark_version)
+    actual: set[tuple[str, str, str]] = set()
+    run_id = run_meta["run_id"]
+    for row in rows:
+        validate_result_row(row, benchmark_version=benchmark_version)
+        if row["run_id"] != run_id:
+            raise ContractError("result row run_id does not match run.json")
+        key = (row["model"], row["reasoning_effort"], row["task_id"])
+        if key in actual:
+            raise ContractError(f"duplicate result row: {key!r}")
+        actual.add(key)
+
+    if actual != expected:
+        missing = sorted(expected - actual)
+        unexpected = sorted(actual - expected)
+        raise ContractError(
+            f"run result coverage mismatch: missing={missing!r}, unexpected={unexpected!r}"
+        )
+
+
+def completion_record(
+    run_meta: Mapping[str, Any],
+    *,
+    attempts: int,
+    results_sha256: str,
+    completed_at: str,
+) -> dict[str, object]:
+    return {
+        "run_id": run_meta["run_id"],
+        "benchmark_version": run_meta["benchmark_version"],
+        "completed_at": completed_at,
+        "attempts": attempts,
+        "results_sha256": results_sha256,
+    }
+
+
+def validate_completion(
+    run_meta: Mapping[str, Any],
+    completion: Mapping[str, Any],
+    rows: list[dict[str, Any]],
+    results_path: Path,
+    *,
+    benchmark_version: str,
+) -> None:
+    validate_run_rows(run_meta, rows, benchmark_version=benchmark_version)
+    if set(completion) != COMPLETION_FIELDS:
+        raise ContractError("completion attestation has an invalid shape")
+    if completion["run_id"] != run_meta["run_id"]:
+        raise ContractError("completion run_id does not match run.json")
+    if completion["benchmark_version"] != benchmark_version:
+        raise ContractError("completion benchmark_version is not current")
+    if not isinstance(completion["completed_at"], str) or not completion["completed_at"]:
+        raise ContractError("completion completed_at must be a non-empty string")
+    attempts = completion["attempts"]
+    if isinstance(attempts, bool) or not isinstance(attempts, int) or attempts != len(rows):
+        raise ContractError("completion attempt count does not match results")
+    digest = completion["results_sha256"]
+    if not isinstance(digest, str) or not _SHA256.fullmatch(digest):
+        raise ContractError("completion results_sha256 is invalid")
+    if digest != file_sha256(results_path):
+        raise ContractError("completion results digest does not match results.jsonl")

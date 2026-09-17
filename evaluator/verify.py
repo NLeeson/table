@@ -14,6 +14,9 @@ from pathlib import Path
 from contracts import verification_fields
 from mca import block_rthroughput
 
+ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "benchmark" / "manifest.json"
+
 _ALIVE2_SUMMARY = re.compile(
     r"^Summary:\s*\n"
     r"\s*(?P<correct>\d+) correct transformations\s*\n"
@@ -58,6 +61,17 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def load_alive2_args() -> list[str]:
+    """Load the benchmark's sole Alive2 invocation contract."""
+    manifest = json.loads(MANIFEST.read_text())
+    values = manifest["toolchain"]["alive2_args"]
+    if not isinstance(values, list) or not values or not all(
+        isinstance(value, str) and value for value in values
+    ):
+        raise ValueError("manifest toolchain.alive2_args must be a non-empty string array")
+    return values
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("reference", type=Path)
@@ -71,6 +85,7 @@ def main() -> None:
     parser.add_argument("--function", default="kernel")
     parser.add_argument("--tool-timeout", type=float, default=60.0)
     args = parser.parse_args()
+    alive2_args = load_alive2_args()
 
     result: dict[str, object] = {
         "candidate_sha256": sha256(args.candidate),
@@ -101,6 +116,7 @@ def main() -> None:
         alive = run(
             [
                 args.alive_tv,
+                *alive2_args,
                 f"--func={args.function}",
                 str(args.reference),
                 str(args.candidate),

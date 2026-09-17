@@ -40,5 +40,10 @@
 - [x] Run targeted tests, reference smoke gate, compilation, schema, and diff checks.
 - [x] Remove redundant outcome/performance fields and permissive schema paths in Milestone 8.
 - [x] Final validation: 24 focused tests, 6/6 reference smoke checks, closed-schema checks, compilation, and diff hygiene pass.
+- [ ] Add completion attestation, exact plan-coverage validation, and interrupted-run regressions.
+- [x] Add completion attestation, exact plan-coverage validation, and interrupted-run regressions.
+- [x] Diagnose Luna/Low failure: default 10-second and raised 30-second Alive2 SMT budgets time out; disabling only undef-input modeling proves the `ctpop` rewrite in about four seconds.
+- [x] Final validation: 28 focused tests, 6/6 smoke checks, compilation, and diff hygiene pass.
 - [ ] Decide whether partial token coverage should make the all-attempt efficiency metric null (planned default) or be reported as a partial metric.
 - [ ] Decide whether saved candidates from affected runs should be batch re-verified or the runs should simply be marked invalid.
+- [x] Make the defined-input policy executable from the manifest; the saved Luna/Low `ctpop` candidate now verifies and the one-task runner completes.
