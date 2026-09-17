@@ -80,20 +80,48 @@ python3 evaluator/smoke_all.py
 
 The expected result is `6/6` correct with score `1.0`.
 
-## Codex CLI runner
+## Minimal Codex POC: one call
 
-`benchmark/run_codex.py` starts a fresh ephemeral Codex session for every task/configuration. It pins the model and reasoning effort explicitly, ignores user/project config and rules, disables web search, runs from a fresh temporary directory, captures the final answer through a JSON schema, and invalidates an attempt if the Codex JSONL stream shows shell commands, file edits, MCP/plugin calls, subagents, or web search.
-
-Run one model at multiple efforts:
+Do **not** start with the full matrix. First exercise exactly one already-smoke-tested task, one model, and one reasoning level:
 
 ```bash
 python3 benchmark/run_codex.py \
   --model gpt-5.6-luna \
   --effort high \
-  --effort max
+  --task bitops_popcount32 \
+  --run-id poc-luna-high-bitops \
+  --dry-run
 ```
 
-Multiple `--model` and `--effort` flags form a Cartesian product. To inspect the plan without spending inference:
+The dry run should report exactly `1` planned Codex call. If that looks right, remove `--dry-run`:
+
+```bash
+python3 benchmark/run_codex.py \
+  --model gpt-5.6-luna \
+  --effort high \
+  --task bitops_popcount32 \
+  --run-id poc-luna-high-bitops
+```
+
+Then inspect only:
+
+```text
+runs/poc-luna-high-bitops/
+  run.json
+  results.jsonl
+  candidates/
+  responses/
+  events/
+  stderr/
+```
+
+This single-call POC is the gate before spending time on multiple efforts, models, or tasks.
+
+## Codex CLI runner
+
+`benchmark/run_codex.py` starts a fresh ephemeral Codex session for every task/configuration. It pins the model and reasoning effort explicitly, ignores user/project config and rules, disables web search, runs from a fresh temporary directory, captures the final answer through a JSON schema, and invalidates an attempt if the Codex JSONL stream shows shell commands, file edits, MCP/plugin calls, subagents, or web search.
+
+After the one-call POC passes, multiple `--model` and `--effort` flags form a Cartesian product. To inspect a larger plan without spending inference:
 
 ```bash
 python3 benchmark/run_codex.py \
@@ -110,21 +138,6 @@ Or use the example matrix:
 python3 benchmark/run_codex.py \
   --matrix benchmark/codex_matrix.example.json \
   --dry-run
-
-python3 benchmark/run_codex.py \
-  --matrix benchmark/codex_matrix.example.json
-```
-
-A run creates:
-
-```text
-runs/<run_id>/
-  run.json
-  results.jsonl
-  candidates/
-  responses/
-  events/
-  stderr/
 ```
 
 Each `results.jsonl` row contains the evaluator score plus Codex token usage, including `reasoning_output_tokens` when exposed by the installed CLI. Aggregate a completed run with:
@@ -174,4 +187,4 @@ The benchmark is only comparable when these are pinned and recorded:
 
 ## Status
 
-The six-task proof-of-concept, deterministic evaluator, smoke gate, and Codex CLI matrix runner are scaffolded. The next milestone is to run the first model/effort matrix end-to-end, inspect token/score behavior, then expand the generators to the full 24-task suite.
+The six-task proof-of-concept, deterministic evaluator, smoke gate, and Codex CLI runner are scaffolded. The immediate gate is the one-call `bitops_popcount32` Luna/High POC above; only after that succeeds should the experiment expand to additional efforts, models, or tasks.
