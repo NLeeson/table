@@ -75,7 +75,27 @@ class ScoreTests(unittest.TestCase):
         self.assertEqual(summary["geomean_task_score_verified"], 2.0)
         self.assertEqual(summary["mean_score_with_failures"], 1.0)
         self.assertEqual(summary["reasoning_tokens_per_score_all_attempts"], 5050.0)
+        self.assertEqual(
+            summary["pooled_score_per_1k_reasoning_tokens"],
+            {"kind": "finite", "value": 1000.0 / 5050.0},
+        )
         self.assertEqual(summary["reasoning_token_coverage"], 1.0)
+
+    def test_zero_token_failure_does_not_hide_from_completion_metrics(self) -> None:
+        summary = summarize(
+            [
+                row("a", "verified", 1.0, 0),
+                row("b", "incorrect", 0.0, 0),
+                row("c", "verified", 9.0, 100),
+            ]
+        )[0]
+
+        self.assertEqual(summary["verification_rate"], 2.0 / 3.0)
+        self.assertEqual(summary["mean_score_with_failures"], 10.0 / 3.0)
+        self.assertEqual(
+            summary["pooled_score_per_1k_reasoning_tokens"],
+            {"kind": "finite", "value": 100.0},
+        )
 
     def test_all_failed_efficiency_is_undefined(self) -> None:
         summary = summarize(

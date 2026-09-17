@@ -1,14 +1,14 @@
 # Living Scratchpad (SSoT)
 
-**Current Milestone Context**: Complete.
+**Current Milestone Context**: Complete — approved Strategy 3 implemented and validated.
 **Timestamp**: 2026-09-17
 
 ---
 
 ## 1. Shortest Causal Chain & Working Hypotheses
-- **Observed Behavior**: Failure semantics had been independently encoded at three seams: Alive2 process handling, speedup aggregation, and reasoning-efficiency filtering.
-- **Root Responsibility**: Resolved by `evaluator/contracts.py`, consumed by verifier, runner, smoke gate, and scorer.
-- **Working Hypothesis**: Confirmed: fail-closed verification and explicit metric populations eliminate the contradictory interpretations.
+- **Observed Behavior**: Normal-client Terra Low has verified scores `1` and `9.285714...` at `0` and `90` reasoning tokens plus an incorrect scan at score/token `0/0`. Its aggregate `1000 * sum(score) / sum(tokens) = 114.285714...`; removing the failed scan yields exactly the same value. Terra High analogously yields `97.035...` from 106 tokens.
+- **Root Responsibility**: `evaluator/score.py` defines efficiency as a ratio of totals. A zero-score/zero-token task is the additive identity in both totals, so the statistic cannot observe the failure even though `task_score()` correctly returns zero.
+- **Working Hypothesis**: Confirmed. Tagged task outcomes and paired Pareto comparison retain task identity, so a zero-score/zero-token failure cannot disappear into pooled totals.
 
 ---
 
@@ -16,6 +16,13 @@
 - `evaluator/contracts.py`: executable outcome invariants and result schema version.
 - `evaluator/verify.py`: strict Alive2 summary classification, explicit function selection, and subprocess timeouts.
 - `evaluator/score.py`: validated result sets, correct-only geomean, failure-inclusive score, and all-attempt reasoning efficiency.
+- `runs/luna-terra-lhm-hard3/results.jsonl`: Terra Low/High each contain one incorrect scan with zero reasoning tokens; Low's other tasks have scores 1 and 9.285714... with only 90 total reasoning tokens.
+- `.codex/0/logs/hard3-normal-rows.json`: bounded projection of the authoritative normal-client hard-3 rows.
+- `.codex/0/logs/hard3-bare-rows.json`: bounded projection of the authoritative modified-client hard-3 rows.
+- `evaluator/metrics.py`: authoritative tagged efficiency and task-outcome comparison domain.
+- `evaluator/compare.py`: completed-run pairing, comparability checks, per-task deltas, and win/loss/tie/trade-off/unknown summaries.
+- `.codex/0/logs/milestone13-focused-tests.txt`: 29 focused tests pass.
+- `.codex/0/logs/milestone13-hard3-compare.json`: real normal/modded-client paired output; all 18 task pairs accounted for.
 - `evaluator/tests/`: permanent wrong-result, renamed-function, invalid-IR, contract, aggregate, and integration regressions.
 - Historical evidence retained below:
 - `.codex/0/logs/verify-wrong.json`: deliberately wrong `ret i32 0` candidate received `correct=true`, score `4.5`.
@@ -28,6 +35,12 @@
 ---
 
 ## 3. Pending Actions & Edge Cases
+- [x] Trace completion state and every score/efficiency consumer.
+- [x] Demonstrate the precise false-positive calculation.
+- [x] Present three strategies and wait for approval per root-cause protocol.
+- [x] After approval, implement only the selected representation and focused tests.
+- [x] Confirm tagged output is strict JSON with no `NaN`/`Infinity` values.
+- [x] Reproduce Terra pooled values without changing historical run artifacts.
 - [x] Contract, aggregate, and verifier regression tests added and observed failing against the old implementation.
 - [x] Implement strict Alive2 summary parsing and failure classification.
 - [x] Focused contract/verifier tests: 13 passed.

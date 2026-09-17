@@ -33,14 +33,24 @@ Aggregate optimization quality uses `geomean_task_score_verified`, the geometric
 
 ## Reasoning-efficiency metrics
 
-The raw run records retain input, reasoning, and output tokens for successful and failed attempts. The primary reciprocal efficiency metric is:
+The raw run records retain input, reasoning, and output tokens for successful and failed attempts. Per-task reasoning efficiency is represented as a tagged value rather than an unguarded division:
 
 ```text
-reasoning_tokens_per_score_all_attempts =
-    sum(reasoning_tokens for every attempt) / sum(normalized task scores)
+non-verified task                 -> zero (0.0)
+verified task, missing tokens     -> unknown
+verified task, zero tokens        -> unbounded
+verified task, positive tokens    -> finite (1000 * task_score / reasoning_tokens)
 ```
 
-Lower is better. Failed attempts therefore retain their token cost in the numerator. The metric is `null` if any attempt lacks reasoning-token usage or if the total earned score is zero; `reasoning_token_coverage` reports completeness. Across adjacent available reasoning tiers we also track:
+This makes failed `0/0` attempts the bottom outcome without changing the measured token count, while a verified positive-score result with zero reported reasoning tokens remains explicitly unbounded. `reasoning_token_coverage` separately exposes missing usage data.
+
+`pooled_score_per_1k_reasoning_tokens` retains the ratio-of-sums observation for descriptive use:
+
+```text
+1000 * sum(task scores) / sum(reasoning tokens)
+```
+
+It is not completion-sensitive: adding a zero-score, zero-token failure leaves both sums unchanged. Never use the pooled value alone to rank configurations. `reasoning_tokens_per_score_all_attempts` remains available as the reciprocal historical view. Across adjacent available reasoning tiers the scorer also retains:
 
 ```text
 marginal_reasoning_tokens_per_score =
@@ -63,7 +73,9 @@ benchmark/
 evaluator/
   verify.py                    LLVM + Alive2 correctness gate
   mca.py                       llvm-mca parsing/helpers
+  metrics.py                   tagged task outcomes and efficiency values
   score.py                     result aggregation and efficiency metrics
+  compare.py                   paired completed-run comparison
   smoke_all.py                 reference-vs-reference smoke gate
 
 runs/                          raw model outputs / run JSONL
@@ -161,6 +173,18 @@ python3 evaluator/score.py runs/<run_id>/results.jsonl
 ```
 
 The runner writes `completed.json` only after every `(model, reasoning effort, task)` in `run.json` has produced exactly one validated result row. The scorer requires that attestation, exact plan coverage, and a matching `results.jsonl` digest. An interrupted or partial run raises an error and is never aggregated; a completed non-verified attempt remains a derived zero-score result.
+
+Compare two completed runs task-by-task with:
+
+```bash
+python3 evaluator/compare.py \
+  runs/<stock_run>/results.jsonl \
+  runs/<modified_run>/results.jsonl \
+  --left-label stock \
+  --right-label modified
+```
+
+The comparison pairs `(model, reasoning effort, task)` rows and emits concise left-win, right-win, tie, trade-off, and unknown counts. A verified result always beats a non-verified result. When both are verified, one side wins only when it is no worse in both task score and reasoning tokens and strictly better in at least one; conflicting changes remain an explicit trade-off. Pooled efficiency is shown alongside verification rate and failure-inclusive quality, but is not used to decide the paired outcome.
 
 ## Result record
 

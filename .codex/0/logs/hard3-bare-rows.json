@@ -1,0 +1,200 @@
+[
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "task_id": "reductions_sum8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 235,
+    "baseline_throughput": 8.0,
+    "candidate_throughput": 8.0,
+    "error": null,
+    "latency_ms": 15993.669007999415
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "task_id": "scans_prefix8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 954,
+    "baseline_throughput": 21.0,
+    "candidate_throughput": 3.3,
+    "error": null,
+    "latency_ms": 27308.604371999536
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "task_id": "vector_arithmetic_clamp8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 314,
+    "baseline_throughput": 26.0,
+    "candidate_throughput": 2.8,
+    "error": null,
+    "latency_ms": 17660.127463997924
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "task_id": "reductions_sum8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 133,
+    "baseline_throughput": 8.0,
+    "candidate_throughput": 8.0,
+    "error": null,
+    "latency_ms": 14351.936881997972
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "task_id": "scans_prefix8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 713,
+    "baseline_throughput": 21.0,
+    "candidate_throughput": 3.3,
+    "error": null,
+    "latency_ms": 23840.977014999226
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "low",
+    "task_id": "vector_arithmetic_clamp8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 154,
+    "baseline_throughput": 26.0,
+    "candidate_throughput": 2.8,
+    "error": null,
+    "latency_ms": 14162.263350001012
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "max",
+    "task_id": "reductions_sum8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 1552,
+    "baseline_throughput": 8.0,
+    "candidate_throughput": 3.5,
+    "error": null,
+    "latency_ms": 39168.76524300096
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "max",
+    "task_id": "scans_prefix8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 2588,
+    "baseline_throughput": 21.0,
+    "candidate_throughput": 3.3,
+    "error": null,
+    "latency_ms": 60211.43820799989
+  },
+  {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "max",
+    "task_id": "vector_arithmetic_clamp8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 2070,
+    "baseline_throughput": 26.0,
+    "candidate_throughput": 2.8,
+    "error": null,
+    "latency_ms": 48171.373421999306
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "high",
+    "task_id": "reductions_sum8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 150,
+    "baseline_throughput": 8.0,
+    "candidate_throughput": 8.0,
+    "error": null,
+    "latency_ms": 12833.261275998666
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "high",
+    "task_id": "scans_prefix8_i32",
+    "verification_status": "incorrect",
+    "reasoning_tokens": 0,
+    "baseline_throughput": null,
+    "candidate_throughput": null,
+    "error": "Alive2 verification status: incorrect",
+    "latency_ms": 11717.461471998831
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "high",
+    "task_id": "vector_arithmetic_clamp8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 185,
+    "baseline_throughput": 26.0,
+    "candidate_throughput": 2.8,
+    "error": null,
+    "latency_ms": 14860.472198000934
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "low",
+    "task_id": "reductions_sum8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 0,
+    "baseline_throughput": 8.0,
+    "candidate_throughput": 8.0,
+    "error": null,
+    "latency_ms": 9932.648989997688
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "low",
+    "task_id": "scans_prefix8_i32",
+    "verification_status": "incorrect",
+    "reasoning_tokens": 0,
+    "baseline_throughput": null,
+    "candidate_throughput": null,
+    "error": "Alive2 verification status: incorrect",
+    "latency_ms": 11003.509516998747
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "low",
+    "task_id": "vector_arithmetic_clamp8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 92,
+    "baseline_throughput": 26.0,
+    "candidate_throughput": 2.8,
+    "error": null,
+    "latency_ms": 14220.308923002449
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "max",
+    "task_id": "reductions_sum8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 1492,
+    "baseline_throughput": 8.0,
+    "candidate_throughput": 3.5,
+    "error": null,
+    "latency_ms": 32873.95453199861
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "max",
+    "task_id": "scans_prefix8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 1897,
+    "baseline_throughput": 21.0,
+    "candidate_throughput": 3.3,
+    "error": null,
+    "latency_ms": 50479.654800998105
+  },
+  {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "max",
+    "task_id": "vector_arithmetic_clamp8_i32",
+    "verification_status": "verified",
+    "reasoning_tokens": 2055,
+    "baseline_throughput": 26.0,
+    "candidate_throughput": 2.8,
+    "error": null,
+    "latency_ms": 54987.45291999876
+  }
+]

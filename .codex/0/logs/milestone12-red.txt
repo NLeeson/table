@@ -1,0 +1,50 @@
+EE...........E..E
+======================================================================
+ERROR: test_metrics (unittest.loader._FailedTest.test_metrics)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_metrics
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/loader.py", line 162, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_metrics.py", line 10, in <module>
+    from metrics import (  # noqa: E402
+ModuleNotFoundError: No module named 'metrics'
+
+
+======================================================================
+ERROR: test_compare (unittest.loader._FailedTest.test_compare)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_compare
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/loader.py", line 162, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_compare.py", line 10, in <module>
+    from compare import compare_rows  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'compare'
+
+
+======================================================================
+ERROR: test_mixed_failure_keeps_correct_only_geomean (evaluator.tests.test_score.ScoreTests.test_mixed_failure_keeps_correct_only_geomean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 79, in test_mixed_failure_keeps_correct_only_geomean
+    summary["pooled_score_per_1k_reasoning_tokens"],
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'pooled_score_per_1k_reasoning_tokens'
+
+======================================================================
+ERROR: test_zero_token_failure_does_not_hide_from_completion_metrics (evaluator.tests.test_score.ScoreTests.test_zero_token_failure_does_not_hide_from_completion_metrics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 96, in test_zero_token_failure_does_not_hide_from_completion_metrics
+    summary["pooled_score_per_1k_reasoning_tokens"],
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'pooled_score_per_1k_reasoning_tokens'
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.004s
+
+FAILED (errors=4)

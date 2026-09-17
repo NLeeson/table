@@ -1,6 +1,6 @@
 # Living Plan (SSoT)
 
-**Objective**: Establish one executable scoring contract and fix correctness gating, aggregate speedup, and reasoning-efficiency handling at every consuming seam.
+**Objective**: Make incomplete task completion an explicit worst outcome in every per-task and aggregate statistic while preserving authoritative measured token data.
 **Status**: Completed
 
 ---
@@ -20,19 +20,21 @@ Aggregate metrics have distinct, explicit populations:
 - `verification_rate`: verified attempts / all attempts
 - `geomean_task_score_verified`: geometric mean of derived scores from verified attempts only
 - `mean_score_with_failures`: arithmetic mean of normalized scores across all attempts
-- `reasoning_tokens_per_score_all_attempts`: sum of known reasoning tokens across all attempts / sum of normalized scores; null when token coverage is incomplete or total score is zero
+- `pooled_score_per_1k_reasoning_tokens`: tagged descriptive ratio of total score to total reasoning tokens; explicitly not completion-sensitive
+- `reasoning_tokens_per_score_all_attempts`: historical reciprocal view; null when token coverage is incomplete or total score is zero
 - `reasoning_token_coverage`: attempts with known reasoning tokens / all attempts
+
+Per-task comparison uses an ordered domain: every non-verified outcome is bottom; verified pairs use Pareto dominance over higher score and lower reasoning-token count. Finite, zero, unbounded, and unknown efficiency states are explicit and JSON-safe.
 
 The manifest documents these names and populations, but executable normalization/validation code is the runtime SSoT.
 
 ---
 
 ## Active Milestone
-- [x] **Milestone 9 — Make run completion explicit and fail closed**
-  - Write a completion attestation only after every planned attempt has emitted exactly one validated row.
-  - Bind the attestation to the run id, current benchmark version, exact attempt count, and results-file digest.
-  - Make the scorer require `run.json`, the completion attestation, exact plan coverage, and a matching digest.
-  - Raise on missing/incomplete/interrupted artifacts; never synthesize absent tasks or aggregate partial rows.
+- [x] **Milestone 13 — Validate paired comparison output**
+  - Run focused metric, comparison, and scorer tests.
+  - Compare the existing normal and modified-client hard-3 runs per task.
+  - Confirm historical pooled Terra observations remain unchanged and explicitly descriptive.
 
 ---
 
@@ -42,6 +44,15 @@ The manifest documents these names and populations, but executable normalization
 ---
 
 ## Completed Milestones
+- [x] **Milestone 12 — Implement the approved representation**
+  - Added focused regression tests for zero-token verified and zero-token non-verified tasks.
+  - Implemented tagged task outcomes, Pareto comparison, and the paired run comparison utility.
+  - Preserved historical run rows and raw score-per-1k observations unchanged.
+- [x] **Milestone 13 — Validate paired comparison output**: 29 focused tests pass; the normal/modded hard-3 comparison reproduces Terra Low `114.285714...` and High `97.035040...` as descriptive pooled values while task failures remain bottom outcomes.
+- [x] **Milestone 11 — Diagnose incomplete-task score representation**
+  - Trace task completion through normalization, per-task metrics, and aggregation.
+  - Prove the current false-positive path using existing artifacts or focused calculations.
+  - Compare exactly three mathematical representations and obtain approval before implementation.
 - [x] **Milestone 0 — Root-cause review**: Located independent policy interpretations in Alive2 gating, geometric-mean aggregation, and token-efficiency filtering.
 - [x] **Milestone 1 — Lock the contract with regression fixtures**
   - Add focused fixtures/tests for: verified equivalence, Alive2 counterexample, failed-to-prove, zero matched functions, invalid IR, and evaluator failure.
@@ -70,3 +81,5 @@ The manifest documents these names and populations, but executable normalization
 - **2026-09-17**: A task failure is a completed zero-score attempt; a missing attempt is a failed run and is never scored.
 - **2026-09-17**: The Luna/Low `ctpop` candidate failed because Alive2 timed out while modeling undef inputs. It proves when `--disable-undef-input` is used, but changing that semantic domain requires an explicit benchmark-contract decision and was not done implicitly.
 - **2026-09-17**: The benchmark contract now explicitly selects defined external inputs with manifest `toolchain.alive2_args=["--disable-undef-input"]`; the strict Alive2 summary gate remains unchanged.
+- **2026-09-17**: Diagnosis: ratio-of-sums efficiency is not failure-sensitive when a non-verified task records both zero score and zero reasoning tokens; adding or removing that task leaves the ratio unchanged. Raw measurements remain authoritative.
+- **2026-09-17**: Approved Strategy 3 implemented: non-verified results are the task-domain bottom, verified pairs use score/token Pareto dominance, and pooled score-per-1k is retained only as a descriptive tagged value.

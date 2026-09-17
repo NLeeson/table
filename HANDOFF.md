@@ -300,15 +300,15 @@ Use tiny POC executions before expensive model sweeps.
 
 When changing the benchmark contract, bump the appropriate benchmark/prompt/schema version rather than silently changing interpretation.
 
-## Immediate recommended task
+## Completed paired-comparison task
 
-Before adding more benchmark families, implement and test the paired run comparison utility plus corrected score-per-token metrics.
+The paired run comparison utility and corrected score-per-token representation are implemented and tested.
 
 Do not modify historical run files.
 
-Run unit tests using synthetic result rows first.
+Unit tests use synthetic result rows.
 
-Then validate on the existing normal-vs-`--bare --orch` hard-3 runs.
+The utility was validated on the existing normal-vs-`--bare --orch` hard-3 runs.
 
 The desired output should make it immediately obvious whether one client/model/effort achieved:
 
@@ -320,3 +320,18 @@ The desired output should make it immediately obvious whether one client/model/e
 
 without collapsing these distinct dimensions into one opaque overall number.
 
+## Implemented paired outcome semantics
+
+The paired comparison uses an ordered task-outcome domain rather than treating a pooled ratio as a completion-aware score:
+
+* every non-verified result is the bottom outcome, including a failed task with zero recorded reasoning tokens;
+* a verified task always beats a non-verified task;
+* two verified tasks use Pareto dominance over higher task score and lower reasoning-token count;
+* conflicting quality/token changes are reported as trade-offs;
+* missing token usage is reported as unknown;
+* verified positive-score/zero-token efficiency is explicitly unbounded;
+* pooled score per 1,000 reasoning tokens is retained exactly as a descriptive observation and never used alone for completion-aware ranking.
+
+Use:
+
+`python3 evaluator/compare.py RUN_A/results.jsonl RUN_B/results.jsonl`

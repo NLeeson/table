@@ -37,7 +37,12 @@
     "invalid_score": 0,
     "aggregate_speedup": "geometric_mean_of_verified_task_scores",
     "failure_inclusive_quality": "arithmetic_mean_of_all_normalized_task_scores",
-    "efficiency_metric": "sum_reasoning_tokens_all_attempts / sum_normalized_scores",
-    "efficiency_missing_tokens": "null_with_coverage_reported"
+    "task_outcome_order": "non_verified_is_bottom; verified_outcomes_compare_by_score_and_reasoning_token_pareto_dominance",
+    "task_efficiency_metric": "tagged(1000 * normalized_task_score / reasoning_tokens)",
+    "task_efficiency_zero_tokens": "non_verified_is_zero; verified_is_unbounded",
+    "task_efficiency_missing_tokens": "verified_is_unknown; non_verified_remains_zero_with_coverage_reported",
+    "pooled_efficiency_metric": "1000 * sum_normalized_scores / sum_reasoning_tokens_all_attempts",
+    "pooled_efficiency_role": "descriptive_only_not_completion_sensitive",
+    "reciprocal_efficiency_metric": "sum_reasoning_tokens_all_attempts / sum_normalized_scores"
   }
 }

@@ -1,0 +1,843 @@
+{
+  "configurations": [
+    {
+      "left": {
+        "mean_score_with_failures": 5.54978354978355,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 5.29727987570813
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 3143,
+        "verification_rate": 1.0,
+        "verified": 3
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcomes": {
+        "left_wins": 0,
+        "right_wins": 3,
+        "ties": 0,
+        "tradeoffs": 0,
+        "unknown": 0
+      },
+      "reasoning_effort": "high",
+      "right": {
+        "mean_score_with_failures": 5.54978354978355,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 11.077412275017066
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 1503,
+        "verification_rate": 1.0,
+        "verified": 3
+      }
+    },
+    {
+      "left": {
+        "mean_score_with_failures": 0.3333333333333333,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 1.9455252918287937
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 514,
+        "verification_rate": 0.3333333333333333,
+        "verified": 1
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcomes": {
+        "left_wins": 1,
+        "right_wins": 2,
+        "ties": 0,
+        "tradeoffs": 0,
+        "unknown": 0
+      },
+      "reasoning_effort": "low",
+      "right": {
+        "mean_score_with_failures": 5.54978354978355,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 16.64935064935065
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 1000,
+        "verification_rate": 1.0,
+        "verified": 3
+      }
+    },
+    {
+      "left": {
+        "mean_score_with_failures": 5.978354978354979,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 1.9297466037298188
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 9294,
+        "verification_rate": 1.0,
+        "verified": 3
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcomes": {
+        "left_wins": 1,
+        "right_wins": 2,
+        "ties": 0,
+        "tradeoffs": 0,
+        "unknown": 0
+      },
+      "reasoning_effort": "max",
+      "right": {
+        "mean_score_with_failures": 5.978354978354979,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 2.888094192442019
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 6210,
+        "verification_rate": 1.0,
+        "verified": 3
+      }
+    },
+    {
+      "left": {
+        "mean_score_with_failures": 3.428571428571429,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 97.03504043126685
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 106,
+        "verification_rate": 0.6666666666666666,
+        "verified": 2
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcomes": {
+        "left_wins": 2,
+        "right_wins": 0,
+        "ties": 1,
+        "tradeoffs": 0,
+        "unknown": 0
+      },
+      "reasoning_effort": "high",
+      "right": {
+        "mean_score_with_failures": 3.428571428571429,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 30.703624733475483
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 335,
+        "verification_rate": 0.6666666666666666,
+        "verified": 2
+      }
+    },
+    {
+      "left": {
+        "mean_score_with_failures": 3.428571428571429,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 114.28571428571429
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 90,
+        "verification_rate": 0.6666666666666666,
+        "verified": 2
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcomes": {
+        "left_wins": 1,
+        "right_wins": 0,
+        "ties": 2,
+        "tradeoffs": 0,
+        "unknown": 0
+      },
+      "reasoning_effort": "low",
+      "right": {
+        "mean_score_with_failures": 3.428571428571429,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 111.80124223602485
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 92,
+        "verification_rate": 0.6666666666666666,
+        "verified": 2
+      }
+    },
+    {
+      "left": {
+        "mean_score_with_failures": 5.978354978354979,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 2.5186160560405755
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 7121,
+        "verification_rate": 1.0,
+        "verified": 3
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcomes": {
+        "left_wins": 1,
+        "right_wins": 2,
+        "ties": 0,
+        "tradeoffs": 0,
+        "unknown": 0
+      },
+      "reasoning_effort": "max",
+      "right": {
+        "mean_score_with_failures": 5.978354978354979,
+        "pooled_score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 3.2944645361985554
+        },
+        "reasoning_token_coverage": 1.0,
+        "tasks": 3,
+        "total_reasoning_tokens": 5444,
+        "verification_rate": 1.0,
+        "verified": 3
+      }
+    }
+  ],
+  "left": {
+    "mean_score_with_failures": 4.116161616161617,
+    "pooled_score_per_1k_reasoning_tokens": {
+      "kind": "finite",
+      "value": 3.6555609379765683
+    },
+    "reasoning_token_coverage": 1.0,
+    "tasks": 18,
+    "total_reasoning_tokens": 20268,
+    "verification_rate": 0.7777777777777778,
+    "verified": 14
+  },
+  "left_label": "stock",
+  "paired_outcomes": {
+    "left_wins": 6,
+    "right_wins": 9,
+    "ties": 3,
+    "tradeoffs": 0,
+    "unknown": 0
+  },
+  "right": {
+    "mean_score_with_failures": 4.9855699855699855,
+    "pooled_score_per_1k_reasoning_tokens": {
+      "kind": "finite",
+      "value": 6.153336515377109
+    },
+    "reasoning_token_coverage": 1.0,
+    "tasks": 18,
+    "total_reasoning_tokens": 14584,
+    "verification_rate": 0.8888888888888888,
+    "verified": 16
+  },
+  "right_label": "modified",
+  "tasks": [
+    {
+      "latency_ms_delta": -20103.170131002116,
+      "left": {
+        "latency_ms": 36096.83913900153,
+        "reasoning_tokens": 1209,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 0.8271298593879239
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "high",
+      "reasoning_tokens_delta": -974,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -80.56244830438379
+      },
+      "right": {
+        "latency_ms": 15993.669007999415,
+        "reasoning_tokens": 235,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 4.25531914893617
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "reductions_sum8_i32"
+    },
+    {
+      "latency_ms_delta": -10443.777081000007,
+      "left": {
+        "latency_ms": 37752.38145299954,
+        "reasoning_tokens": 1527,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 4.167410847175091
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "high",
+      "reasoning_tokens_delta": -573,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -37.524557956778
+      },
+      "right": {
+        "latency_ms": 27308.604371999536,
+        "reasoning_tokens": 954,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 6.670478368591576
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "scans_prefix8_i32"
+    },
+    {
+      "latency_ms_delta": -2631.9868480022706,
+      "left": {
+        "latency_ms": 20292.114312000194,
+        "reasoning_tokens": 407,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 22.815022815022818
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "high",
+      "reasoning_tokens_delta": -93,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -22.85012285012285
+      },
+      "right": {
+        "latency_ms": 17660.127463997924,
+        "reasoning_tokens": 314,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 29.572338489535944
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "vector_arithmetic_clamp8_i32"
+    },
+    {
+      "latency_ms_delta": 1698.366240998439,
+      "left": {
+        "latency_ms": 12653.570640999533,
+        "reasoning_tokens": 57,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 17.54385964912281
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "left_wins",
+      "reasoning_effort": "low",
+      "reasoning_tokens_delta": 76,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 133.33333333333334
+      },
+      "right": {
+        "latency_ms": 14351.936881997972,
+        "reasoning_tokens": 133,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 7.518796992481203
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "reductions_sum8_i32"
+    },
+    {
+      "latency_ms_delta": 7405.042544996832,
+      "left": {
+        "latency_ms": 16435.934470002394,
+        "reasoning_tokens": 345,
+        "score": 0.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "zero",
+          "value": 0.0
+        },
+        "verification_status": "incorrect"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "low",
+      "reasoning_tokens_delta": 368,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 106.66666666666667
+      },
+      "right": {
+        "latency_ms": 23840.977014999226,
+        "reasoning_tokens": 713,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 8.925156190233329
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 6.363636363636364,
+      "task_id": "scans_prefix8_i32"
+    },
+    {
+      "latency_ms_delta": 904.9476260006486,
+      "left": {
+        "latency_ms": 13257.315724000364,
+        "reasoning_tokens": 112,
+        "score": 0.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "zero",
+          "value": 0.0
+        },
+        "verification_status": "invalid"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "low",
+      "reasoning_tokens_delta": 42,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 37.5
+      },
+      "right": {
+        "latency_ms": 14162.263350001012,
+        "reasoning_tokens": 154,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 60.29684601113173
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 9.285714285714286,
+      "task_id": "vector_arithmetic_clamp8_i32"
+    },
+    {
+      "latency_ms_delta": 14714.119382999343,
+      "left": {
+        "latency_ms": 24454.64586000162,
+        "reasoning_tokens": 1034,
+        "score": 2.2857142857142856,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 2.210555402044764
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "left_wins",
+      "reasoning_effort": "max",
+      "reasoning_tokens_delta": 518,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 50.09671179883946
+      },
+      "right": {
+        "latency_ms": 39168.76524300096,
+        "reasoning_tokens": 1552,
+        "score": 2.2857142857142856,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 1.4727540500736378
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "reductions_sum8_i32"
+    },
+    {
+      "latency_ms_delta": -36032.4170060012,
+      "left": {
+        "latency_ms": 96243.85521400109,
+        "reasoning_tokens": 4636,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 1.3726566789552122
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "max",
+      "reasoning_tokens_delta": -2048,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -44.17601380500432
+      },
+      "right": {
+        "latency_ms": 60211.43820799989,
+        "reasoning_tokens": 2588,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 2.458901222425179
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "scans_prefix8_i32"
+    },
+    {
+      "latency_ms_delta": -29260.518427003262,
+      "left": {
+        "latency_ms": 77431.89184900257,
+        "reasoning_tokens": 3624,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 2.5622831914222646
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-luna",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "max",
+      "reasoning_tokens_delta": -1554,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -42.88079470198676
+      },
+      "right": {
+        "latency_ms": 48171.373421999306,
+        "reasoning_tokens": 2070,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 4.485852311939269
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "vector_arithmetic_clamp8_i32"
+    },
+    {
+      "latency_ms_delta": 2527.0367060002172,
+      "left": {
+        "latency_ms": 10306.224569998449,
+        "reasoning_tokens": 0,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "unbounded",
+          "value": null
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "left_wins",
+      "reasoning_effort": "high",
+      "reasoning_tokens_delta": 150,
+      "reasoning_tokens_percent_change": {
+        "kind": "unbounded_increase",
+        "value": null
+      },
+      "right": {
+        "latency_ms": 12833.261275998666,
+        "reasoning_tokens": 150,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 6.666666666666667
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "reductions_sum8_i32"
+    },
+    {
+      "latency_ms_delta": 1445.1050929965277,
+      "left": {
+        "latency_ms": 10272.356379002304,
+        "reasoning_tokens": 0,
+        "score": 0.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "zero",
+          "value": 0.0
+        },
+        "verification_status": "incorrect"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "tie",
+      "reasoning_effort": "high",
+      "reasoning_tokens_delta": 0,
+      "reasoning_tokens_percent_change": {
+        "kind": "not_applicable",
+        "value": null
+      },
+      "right": {
+        "latency_ms": 11717.461471998831,
+        "reasoning_tokens": 0,
+        "score": 0.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "zero",
+          "value": 0.0
+        },
+        "verification_status": "incorrect"
+      },
+      "score_delta": 0.0,
+      "task_id": "scans_prefix8_i32"
+    },
+    {
+      "latency_ms_delta": 1734.9937289982336,
+      "left": {
+        "latency_ms": 13125.4784690027,
+        "reasoning_tokens": 106,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 87.6010781671159
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "left_wins",
+      "reasoning_effort": "high",
+      "reasoning_tokens_delta": 79,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 74.52830188679245
+      },
+      "right": {
+        "latency_ms": 14860.472198000934,
+        "reasoning_tokens": 185,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 50.1930501930502
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "vector_arithmetic_clamp8_i32"
+    },
+    {
+      "latency_ms_delta": -260.6194220024918,
+      "left": {
+        "latency_ms": 10193.26841200018,
+        "reasoning_tokens": 0,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "unbounded",
+          "value": null
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "tie",
+      "reasoning_effort": "low",
+      "reasoning_tokens_delta": 0,
+      "reasoning_tokens_percent_change": {
+        "kind": "not_applicable",
+        "value": null
+      },
+      "right": {
+        "latency_ms": 9932.648989997688,
+        "reasoning_tokens": 0,
+        "score": 1.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "unbounded",
+          "value": null
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "reductions_sum8_i32"
+    },
+    {
+      "latency_ms_delta": 1713.6264479995589,
+      "left": {
+        "latency_ms": 9289.883068999188,
+        "reasoning_tokens": 0,
+        "score": 0.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "zero",
+          "value": 0.0
+        },
+        "verification_status": "incorrect"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "tie",
+      "reasoning_effort": "low",
+      "reasoning_tokens_delta": 0,
+      "reasoning_tokens_percent_change": {
+        "kind": "not_applicable",
+        "value": null
+      },
+      "right": {
+        "latency_ms": 11003.509516998747,
+        "reasoning_tokens": 0,
+        "score": 0.0,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "zero",
+          "value": 0.0
+        },
+        "verification_status": "incorrect"
+      },
+      "score_delta": 0.0,
+      "task_id": "scans_prefix8_i32"
+    },
+    {
+      "latency_ms_delta": -301267.79769499623,
+      "left": {
+        "latency_ms": 315488.1066179987,
+        "reasoning_tokens": 90,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 103.17460317460318
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "left_wins",
+      "reasoning_effort": "low",
+      "reasoning_tokens_delta": 2,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 2.2222222222222223
+      },
+      "right": {
+        "latency_ms": 14220.308923002449,
+        "reasoning_tokens": 92,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 100.93167701863355
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "vector_arithmetic_clamp8_i32"
+    },
+    {
+      "latency_ms_delta": -31686.418675999448,
+      "left": {
+        "latency_ms": 64560.373207998055,
+        "reasoning_tokens": 2656,
+        "score": 2.2857142857142856,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 0.8605851979345955
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "max",
+      "reasoning_tokens_delta": -1164,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -43.825301204819276
+      },
+      "right": {
+        "latency_ms": 32873.95453199861,
+        "reasoning_tokens": 1492,
+        "score": 2.2857142857142856,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 1.5319800842589046
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "reductions_sum8_i32"
+    },
+    {
+      "latency_ms_delta": -3030.9948329995677,
+      "left": {
+        "latency_ms": 53510.64963399767,
+        "reasoning_tokens": 2450,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 2.5974025974025974
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "right_wins",
+      "reasoning_effort": "max",
+      "reasoning_tokens_delta": -553,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": -22.571428571428573
+      },
+      "right": {
+        "latency_ms": 50479.654800998105,
+        "reasoning_tokens": 1897,
+        "score": 6.363636363636364,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 3.354579000335458
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "scans_prefix8_i32"
+    },
+    {
+      "latency_ms_delta": 7869.815395999467,
+      "left": {
+        "latency_ms": 47117.63752399929,
+        "reasoning_tokens": 2015,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 4.6082949308755765
+        },
+        "verification_status": "verified"
+      },
+      "model": "gpt-5.6-terra",
+      "paired_outcome": "left_wins",
+      "reasoning_effort": "max",
+      "reasoning_tokens_delta": 40,
+      "reasoning_tokens_percent_change": {
+        "kind": "finite",
+        "value": 1.9851116625310175
+      },
+      "right": {
+        "latency_ms": 54987.45291999876,
+        "reasoning_tokens": 2055,
+        "score": 9.285714285714286,
+        "score_per_1k_reasoning_tokens": {
+          "kind": "finite",
+          "value": 4.518595759471672
+        },
+        "verification_status": "verified"
+      },
+      "score_delta": 0.0,
+      "task_id": "vector_arithmetic_clamp8_i32"
+    }
+  ]
+}

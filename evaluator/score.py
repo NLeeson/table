@@ -19,6 +19,7 @@ from contracts import (
     validate_completion,
     validate_result_row,
 )
+from metrics import pooled_score_per_1k_reasoning_tokens
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "benchmark" / "manifest.json"
@@ -100,6 +101,9 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "median_score_with_failures": median(scores) if scores else 0.0,
                 "mean_reasoning_tokens": mean(reasoning) if reasoning else None,
                 "reasoning_token_coverage": reasoning_coverage,
+                "pooled_score_per_1k_reasoning_tokens": (
+                    pooled_score_per_1k_reasoning_tokens(group).as_dict()
+                ),
                 "reasoning_tokens_per_score_all_attempts": all_attempt_efficiency,
                 "marginal_from_effort": None,
                 "marginal_reasoning_tokens_per_score": None,
