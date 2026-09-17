@@ -1,0 +1,20 @@
+{
+  "task_id": "bitops_parity64",
+  "family": "bitops",
+  "generator_version": "frozen-v0",
+  "seed": 1403,
+  "semantic_parameters": {
+    "operation": "parity",
+    "element_type": "i64",
+    "bits": 64
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

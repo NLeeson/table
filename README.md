@@ -85,13 +85,13 @@ results/
 
 ## Smoke gate
 
-Before model runs, verify all six current references against themselves:
+Before model runs, verify all 24 frozen references against themselves:
 
 ```bash
 python3 evaluator/smoke_all.py
 ```
 
-The expected result is `6/6` correct with score `1.0`.
+The expected result is `24/24` correct with score `1.0`.
 
 ## Minimal Codex POC: one call
 
@@ -232,4 +232,4 @@ The benchmark is only comparable when these are pinned and recorded:
 
 ## Status
 
-The six-task proof-of-concept, deterministic evaluator, smoke gate, and Codex CLI runner are scaffolded. The immediate gate is the one-call `bitops_popcount32` Luna/High POC above; only after that succeeds should the experiment expand to additional efforts, models, or tasks.
+The 24-task v0 suite is frozen at four instances per family. The deterministic evaluator, smoke gate, Codex CLI runner, and paired-run comparison tooling are scaffolded; use small task subsets for POCs before spending inference on the full suite.

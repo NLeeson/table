@@ -1,0 +1,21 @@
+{
+  "task_id": "permutations_interleave4_i32",
+  "family": "permutations",
+  "generator_version": "frozen-v0",
+  "seed": 1603,
+  "semantic_parameters": {
+    "operation": "interleave_two_vectors",
+    "element_type": "i32",
+    "input_lanes": 4,
+    "output_lanes": 8
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

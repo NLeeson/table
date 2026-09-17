@@ -1,0 +1,21 @@
+{
+  "task_id": "vector_arithmetic_abs8_i32",
+  "family": "vector_arithmetic",
+  "generator_version": "frozen-v0",
+  "seed": 1501,
+  "semantic_parameters": {
+    "operation": "wrapping_abs",
+    "element_type": "i32",
+    "lanes": 8,
+    "int_min": "wraps_to_itself"
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

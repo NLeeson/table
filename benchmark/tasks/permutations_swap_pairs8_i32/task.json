@@ -1,0 +1,30 @@
+{
+  "task_id": "permutations_swap_pairs8_i32",
+  "family": "permutations",
+  "generator_version": "frozen-v0",
+  "seed": 1602,
+  "semantic_parameters": {
+    "operation": "swap_adjacent_pairs",
+    "element_type": "i32",
+    "lanes": 8,
+    "permutation": [
+      1,
+      0,
+      3,
+      2,
+      5,
+      4,
+      7,
+      6
+    ]
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

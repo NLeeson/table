@@ -1,0 +1,20 @@
+{
+  "task_id": "sorting_selection_sort4_i32",
+  "family": "sorting_selection",
+  "generator_version": "frozen-v0",
+  "seed": 1303,
+  "semantic_parameters": {
+    "operation": "signed_sort_ascending",
+    "element_type": "i32",
+    "lanes": 4
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "task_id": "vector_arithmetic_affine8_i16",
+  "family": "vector_arithmetic",
+  "generator_version": "frozen-v0",
+  "seed": 1502,
+  "semantic_parameters": {
+    "operation": "affine",
+    "element_type": "i16",
+    "lanes": 8,
+    "mul": 5,
+    "add": -13,
+    "arithmetic": "wrapping"
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

@@ -20,14 +20,15 @@ def main() -> int:
     manifest = json.loads(MANIFEST.read_text())
     mcpu = manifest["toolchain"]["mcpu"]
     triple = manifest["toolchain"]["target_triple"]
+    expected_tasks = sum(int(family["instances"]) for family in manifest["families"])
 
     task_dirs = sorted(
         p for p in TASKS_DIR.iterdir()
         if p.is_dir() and (p / "reference.ll").is_file()
     )
 
-    if len(task_dirs) != 6:
-        print(f"ERROR: expected 6 smoke tasks, found {len(task_dirs)}", file=sys.stderr)
+    if len(task_dirs) != expected_tasks:
+        print(f"ERROR: expected {expected_tasks} smoke tasks, found {len(task_dirs)}", file=sys.stderr)
         return 2
 
     failures: list[str] = []
@@ -98,7 +99,7 @@ def main() -> int:
             print(f"- {failure}", file=sys.stderr)
         return 1
 
-    print(f"\nPASS: {len(rows)}/6 reference self-checks verified with derived task score 1.0")
+    print(f"\nPASS: {len(rows)}/{expected_tasks} reference self-checks verified with derived task score 1.0")
     return 0
 
 

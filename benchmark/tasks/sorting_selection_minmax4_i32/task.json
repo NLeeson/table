@@ -1,0 +1,19 @@
+{
+  "task_id": "sorting_selection_minmax4_i32",
+  "family": "sorting_selection",
+  "generator_version": "frozen-v0",
+  "seed": 1301,
+  "semantic_parameters": {
+    "operation": "signed_minmax_of_4",
+    "element_type": "i32"
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}

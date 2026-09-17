@@ -1,0 +1,30 @@
+{
+  "task_id": "permutations_rotate8_i32",
+  "family": "permutations",
+  "generator_version": "frozen-v0",
+  "seed": 1601,
+  "semantic_parameters": {
+    "operation": "rotate_left_2_lanes",
+    "element_type": "i32",
+    "lanes": 8,
+    "permutation": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      0,
+      1
+    ]
+  },
+  "prompt_version": "ir-opt-v0",
+  "constraints": {
+    "same_function_name": true,
+    "single_function": true,
+    "no_globals": true,
+    "no_external_calls": true,
+    "no_inline_asm": true,
+    "no_target_intrinsics": true
+  }
+}
