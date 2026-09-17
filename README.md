@@ -18,7 +18,7 @@ The first benchmark target is **semantic-preserving LLVM IR optimization**. A mo
 For each task:
 
 1. `llvm-as` / verifier accepts the candidate IR.
-2. `alive-tv` checks candidate refinement/equivalence against the reference.
+2. `alive-tv` checks candidate refinement/equivalence against the reference. The evaluator requires exactly one correct transformation and rejects counterexamples, failures-to-prove, Alive2 errors, malformed summaries, and zero matched functions.
 3. Reference and candidate are lowered with the same frozen LLVM version and flags.
 4. `llvm-mca` estimates throughput for the same fixed CPU model.
 5. Incorrect/invalid candidates receive a score of `0`.
@@ -26,24 +26,25 @@ For each task:
 For a correct candidate:
 
 ```text
-speedup = baseline_throughput / candidate_throughput
-score   = speedup
+task_score = baseline_throughput / candidate_throughput
 ```
 
-Aggregate optimization quality should use the geometric mean across tasks, with failed tasks contributing zero to correctness reporting and being tracked separately from the geomean of valid speedups.
+Aggregate optimization quality uses `geomean_task_score_verified`, the geometric mean of verified task scores only. `mean_score_with_failures` is the separate failure-inclusive quality metric; it averages every derived task score, including zero for every non-verified attempt.
 
 ## Reasoning-efficiency metrics
 
-The raw run records retain input, reasoning, and output tokens. The primary reciprocal efficiency metric is:
+The raw run records retain input, reasoning, and output tokens for successful and failed attempts. The primary reciprocal efficiency metric is:
 
 ```text
-tokens_per_score = reasoning_tokens / score
+reasoning_tokens_per_score_all_attempts =
+    sum(reasoning_tokens for every attempt) / sum(normalized task scores)
 ```
 
-Lower is better. Across adjacent reasoning tiers we also track:
+Lower is better. Failed attempts therefore retain their token cost in the numerator. The metric is `null` if any attempt lacks reasoning-token usage or if the total earned score is zero; `reasoning_token_coverage` reports completeness. Across adjacent available reasoning tiers we also track:
 
 ```text
-marginal_tokens_per_score = delta(reasoning_tokens) / delta(score)
+marginal_reasoning_tokens_per_score =
+    delta(mean reasoning tokens) / delta(mean score with failures)
 ```
 
 This makes diminishing returns from Medium -> High -> xHigh -> Max directly visible.
@@ -161,20 +162,21 @@ python3 evaluator/score.py runs/<run_id>/results.jsonl
 
 ## Result record
 
-Each model/task attempt should record at least:
+Each model/task attempt records source facts rather than derived mirrors:
 
 - model
 - reasoning effort
 - task id
-- correctness
-- baseline and candidate throughput
-- speedup / score
+- verification status (`verified`, `incorrect`, `unproven`, `invalid`, or `evaluator_error`)
+- baseline and candidate throughput for verified attempts
 - input tokens
 - reasoning tokens
 - output tokens
 - latency
 - cost, when available
 - raw candidate IR path or content hash
+
+Correctness (`verification_status == verified`) and task score are derived when results are consumed; neither is persisted in attempt rows.
 
 See `results/schema.json`.
 

@@ -19,7 +19,18 @@ MANIFEST = ROOT / "benchmark" / "manifest.json"
 TASKS_DIR = ROOT / "benchmark" / "tasks"
 OUTPUT_SCHEMA = ROOT / "benchmark" / "codex_output.schema.json"
 VERIFY = ROOT / "evaluator" / "verify.py"
-VALID_EFFORTS = {"none", "low", "medium", "high", "xhigh", "max"}
+sys.path.insert(0, str(ROOT / "evaluator"))
+
+from contracts import (  # noqa: E402
+    REASONING_EFFORTS,
+    ContractError,
+    task_score,
+    validate_attempt,
+    validate_result_row,
+    verification_fields,
+)
+
+VALID_EFFORTS = set(REASONING_EFFORTS)
 FORBIDDEN_ITEM_TYPES = {
     "command_execution",
     "file_change",
@@ -56,14 +67,13 @@ def git_head() -> str | None:
     return run_text(["git", "-C", str(ROOT), "rev-parse", "HEAD"])
 
 
-def load_task_seed(task_dir: Path) -> Any:
+def load_task_seed(task_dir: Path) -> int | str:
     meta = task_dir / "task.json"
-    if not meta.exists():
-        return None
-    try:
-        return json.loads(meta.read_text()).get("seed")
-    except (OSError, json.JSONDecodeError):
-        return None
+    data = json.loads(meta.read_text())
+    seed = data["seed"]
+    if isinstance(seed, bool) or not isinstance(seed, (int, str)):
+        raise ValueError(f"invalid task seed in {meta}: {seed!r}")
+    return seed
 
 
 def load_matrix(path: Path) -> list[tuple[str, str]]:
@@ -148,6 +158,7 @@ def base_result(
 ) -> dict[str, Any]:
     usage = usage or {}
     toolchain = manifest["toolchain"]
+    reasoning_tokens = usage.get("reasoning_output_tokens")
     return {
         "benchmark_version": manifest["benchmark_version"],
         "run_id": run_id,
@@ -155,16 +166,15 @@ def base_result(
         "reasoning_effort": effort,
         "task_id": task_dir.name,
         "task_seed": load_task_seed(task_dir),
-        "correct": False,
-        "score": 0.0,
-        "input_tokens": int(usage.get("input_tokens", 0) or 0),
-        "cached_input_tokens": int(usage.get("cached_input_tokens", 0) or 0),
-        "cache_write_input_tokens": int(usage.get("cache_write_input_tokens", 0) or 0),
-        "reasoning_tokens": usage.get("reasoning_output_tokens"),
-        "output_tokens": int(usage.get("output_tokens", 0) or 0),
+        **verification_fields("invalid"),
+        "input_tokens": usage.get("input_tokens"),
+        "cached_input_tokens": usage.get("cached_input_tokens"),
+        "cache_write_input_tokens": usage.get("cache_write_input_tokens"),
+        "reasoning_tokens": reasoning_tokens,
+        "output_tokens": usage.get("output_tokens"),
         "latency_ms": latency_ms,
         "cost_usd": None,
-        "candidate_sha256": "0" * 64,
+        "candidate_sha256": None,
         "candidate_ir_path": None,
         "llvm_version": toolchain["llvm_version"],
         "alive2_revision": toolchain["alive2_revision"],
@@ -224,6 +234,11 @@ def main() -> int:
 
     if not tasks:
         parser.error("no benchmark tasks found")
+    try:
+        for task_dir in tasks:
+            load_task_seed(task_dir)
+    except (OSError, json.JSONDecodeError, KeyError, ValueError) as exc:
+        parser.error(str(exc))
 
     run_id = args.run_id or datetime.now(timezone.utc).strftime("codex-%Y%m%dT%H%M%SZ")
     total = len(pairs) * len(tasks)
@@ -389,19 +404,25 @@ def main() -> int:
                     text=True,
                     capture_output=True,
                 )
-                try:
-                    verified = json.loads(verify.stdout)
-                except json.JSONDecodeError as exc:
+                if verify.returncode != 0:
                     verified = None
-                    error = f"evaluator returned invalid JSON: {exc}"
+                    error = f"evaluator exited {verify.returncode}: {verify.stderr.strip()}"
+                    row.update(verification_fields("evaluator_error"))
+                else:
+                    try:
+                        verified = json.loads(verify.stdout)
+                        validate_attempt(verified)
+                    except (json.JSONDecodeError, ContractError) as exc:
+                        verified = None
+                        error = f"invalid evaluator result: {exc}"
+                        row.update(verification_fields("evaluator_error"))
                 if verified is not None:
                     for key in (
-                        "correct",
+                        "verification_status",
                         "baseline_throughput",
                         "candidate_throughput",
-                        "speedup",
-                        "score",
                         "candidate_sha256",
+                        "alive2_summary",
                     ):
                         if key in verified:
                             row[key] = verified[key]
@@ -409,15 +430,17 @@ def main() -> int:
                         error = str(verified["error"])
 
             row["error"] = error
-            if error is not None or not row.get("correct"):
+            validate_result_row(row, benchmark_version=manifest["benchmark_version"])
+
+            if error is not None or row["verification_status"] != "verified":
                 failures += 1
             with results_path.open("a") as f:
                 f.write(json.dumps(row, sort_keys=True) + "\n")
 
-            status = "PASS" if row.get("correct") and error is None else "FAIL"
+            status = "PASS" if row["verification_status"] == "verified" and error is None else "FAIL"
             reasoning = row.get("reasoning_tokens")
             print(
-                f"  {status} score={row.get('score')} reasoning_tokens={reasoning} latency_ms={latency_ms:.0f}"
+                f"  {status} score={task_score(row)} reasoning_tokens={reasoning} latency_ms={latency_ms:.0f}"
                 + (f" error={error}" if error else ""),
                 flush=True,
             )

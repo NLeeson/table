@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from contracts import VERIFIED, ContractError, task_score, validate_attempt
+
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "benchmark" / "manifest.json"
 TASKS_DIR = ROOT / "benchmark" / "tasks"
@@ -56,28 +58,31 @@ def main() -> int:
             failures.append(f"{task_dir.name}: invalid JSON from verify.py: {exc}")
             continue
 
-        correct = result.get("correct") is True
-        score = result.get("score")
-        speedup = result.get("speedup")
+        try:
+            validate_attempt(result)
+        except ContractError as exc:
+            failures.append(f"{task_dir.name}: result contract violation: {exc}")
+            continue
+
+        verification_status = result.get("verification_status")
+        score = task_score(result)
         baseline = result.get("baseline_throughput")
         candidate = result.get("candidate_throughput")
 
         passed = (
-            correct
+            verification_status == VERIFIED
             and isinstance(score, (int, float))
             and abs(float(score) - 1.0) < 1e-12
-            and isinstance(speedup, (int, float))
-            and abs(float(speedup) - 1.0) < 1e-12
             and baseline == candidate
         )
 
         rows.append(
             {
                 "task_id": task_dir.name,
-                "correct": correct,
+                "verification_status": verification_status,
                 "baseline_throughput": baseline,
                 "candidate_throughput": candidate,
-                "score": score,
+                "derived_task_score": score,
                 "pass": passed,
             }
         )
@@ -93,7 +98,7 @@ def main() -> int:
             print(f"- {failure}", file=sys.stderr)
         return 1
 
-    print(f"\nPASS: {len(rows)}/6 reference self-checks returned correct=true and score=1.0")
+    print(f"\nPASS: {len(rows)}/6 reference self-checks verified with derived task score 1.0")
     return 0
 
 

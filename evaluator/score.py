@@ -11,36 +11,60 @@ from pathlib import Path
 from statistics import mean, median
 from typing import Any, Iterable
 
+from contracts import (
+    REASONING_EFFORTS,
+    VERIFIED,
+    ContractError,
+    task_score,
+    validate_result_row,
+)
 
-def task_score(row: dict[str, Any]) -> float:
-    if not row.get("correct", False):
-        return 0.0
-    score = row.get("score")
-    if score is not None:
-        return float(score)
-    baseline = float(row["baseline_throughput"])
-    candidate = float(row["candidate_throughput"])
-    if baseline <= 0 or candidate <= 0:
-        return 0.0
-    return baseline / candidate
+ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "benchmark" / "manifest.json"
+
+EFFORT_ORDER = {
+    name: index
+    for index, name in enumerate(REASONING_EFFORTS)
+}
 
 
-def tokens_per_score(row: dict[str, Any]) -> float | None:
-    score = task_score(row)
-    tokens = row.get("reasoning_tokens")
-    if score <= 0 or tokens is None:
-        return None
-    return float(tokens) / score
+def validate_result_set(rows: list[dict[str, Any]]) -> None:
+    manifest = json.loads(MANIFEST.read_text())
+    benchmark_version = manifest["benchmark_version"]
+    run_ids: set[object] = set()
+    attempts: set[tuple[object, str, str, str]] = set()
+    task_sets: dict[tuple[str, str], set[str]] = defaultdict(set)
+
+    for row in rows:
+        validate_result_row(row, benchmark_version=benchmark_version)
+        model = row["model"]
+        effort = row["reasoning_effort"]
+        task = row["task_id"]
+        run_ids.add(row["run_id"])
+        key = (row["run_id"], model, effort, task)
+        if key in attempts:
+            raise ContractError(f"duplicate attempt: {key!r}")
+        attempts.add(key)
+        task_sets[(model, effort)].add(task)
+
+    if len(run_ids) > 1:
+        raise ContractError("mixed run ids")
+    distinct_task_sets = {frozenset(tasks) for tasks in task_sets.values()}
+    if len(distinct_task_sets) > 1:
+        raise ContractError("model/reasoning configurations have different task sets")
 
 
 def geometric_mean(values: Iterable[float]) -> float | None:
-    vals = [v for v in values if v > 0]
+    vals = list(values)
     if not vals:
         return None
+    if any(not math.isfinite(v) or v <= 0 for v in vals):
+        raise ContractError("geometric mean inputs must be finite and positive")
     return math.exp(sum(math.log(v) for v in vals) / len(vals))
 
 
 def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    validate_result_set(rows)
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         groups[(str(row["model"]), str(row["reasoning_effort"]))].append(row)
@@ -48,24 +72,63 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for (model, effort), group in sorted(groups.items()):
         scores = [task_score(r) for r in group]
-        correct_scores = [s for s in scores if s > 0]
-        tps = [v for r in group if (v := tokens_per_score(r)) is not None]
-        reasoning = [float(r["reasoning_tokens"]) for r in group if r.get("reasoning_tokens") is not None]
+        verified_rows = [r for r in group if r["verification_status"] == VERIFIED]
+        verified_scores = [task_score(r) for r in verified_rows]
+        reasoning = [
+            float(r["reasoning_tokens"])
+            for r in group
+            if r.get("reasoning_tokens") is not None
+        ]
+        reasoning_coverage = len(reasoning) / len(group) if group else 0.0
+        total_score = sum(scores)
+        all_attempt_efficiency = (
+            sum(reasoning) / total_score
+            if len(reasoning) == len(group) and total_score > 0
+            else None
+        )
 
         out.append(
             {
                 "model": model,
                 "reasoning_effort": effort,
                 "tasks": len(group),
-                "correct": len(correct_scores),
-                "correctness_rate": len(correct_scores) / len(group) if group else 0.0,
-                "geomean_speedup_correct": geometric_mean(correct_scores),
+                "verified": len(verified_rows),
+                "verification_rate": len(verified_rows) / len(group) if group else 0.0,
+                "geomean_task_score_verified": geometric_mean(verified_scores),
                 "mean_score_with_failures": mean(scores) if scores else 0.0,
                 "median_score_with_failures": median(scores) if scores else 0.0,
                 "mean_reasoning_tokens": mean(reasoning) if reasoning else None,
-                "mean_tokens_per_score": mean(tps) if tps else None,
+                "reasoning_token_coverage": reasoning_coverage,
+                "reasoning_tokens_per_score_all_attempts": all_attempt_efficiency,
+                "marginal_from_effort": None,
+                "marginal_reasoning_tokens_per_score": None,
             }
         )
+
+    by_model: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for summary in out:
+        by_model[summary["model"]].append(summary)
+    for model_summaries in by_model.values():
+        ordered = sorted(
+            model_summaries,
+            key=lambda summary: EFFORT_ORDER.get(summary["reasoning_effort"], len(EFFORT_ORDER)),
+        )
+        for previous, current in zip(ordered, ordered[1:]):
+            current["marginal_from_effort"] = previous["reasoning_effort"]
+            if (
+                previous["reasoning_token_coverage"] == 1.0
+                and current["reasoning_token_coverage"] == 1.0
+                and previous["mean_reasoning_tokens"] is not None
+                and current["mean_reasoning_tokens"] is not None
+            ):
+                delta_score = (
+                    current["mean_score_with_failures"] - previous["mean_score_with_failures"]
+                )
+                if delta_score > 0:
+                    delta_tokens = (
+                        current["mean_reasoning_tokens"] - previous["mean_reasoning_tokens"]
+                    )
+                    current["marginal_reasoning_tokens_per_score"] = delta_tokens / delta_score
     return out
 
 

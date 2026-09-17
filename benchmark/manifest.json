@@ -1,7 +1,6 @@
 {
-  "schema_version": 1,
   "benchmark": "table-irbench-mini",
-  "benchmark_version": "0.1.0",
+  "benchmark_version": "0.2.0",
   "description": "Deterministic semantic-preserving LLVM IR optimization benchmark",
   "task_policy": {
     "pure_single_function": true,
@@ -30,10 +29,14 @@
   ],
   "scoring": {
     "correctness_gate": "alive-tv",
+    "verified_outcome": "verified status with positive baseline and candidate throughput",
+    "non_verified_outcome": "non-verified status with no throughput measurements",
     "performance_metric": "llvm-mca Block RThroughput",
     "task_score": "baseline_throughput / candidate_throughput",
     "invalid_score": 0,
-    "aggregate_speedup": "geometric_mean_of_correct_tasks",
-    "efficiency_metric": "reasoning_tokens / score"
+    "aggregate_speedup": "geometric_mean_of_verified_task_scores",
+    "failure_inclusive_quality": "arithmetic_mean_of_all_normalized_task_scores",
+    "efficiency_metric": "sum_reasoning_tokens_all_attempts / sum_normalized_scores",
+    "efficiency_missing_tokens": "null_with_coverage_reported"
   }
 }
