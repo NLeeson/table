@@ -1,0 +1,9 @@
+{
+  "alive2_stdout": "----------------------------------------\ndefine i32 @kernel(i32 %x) {\nentry:\n  %s1 = lshr i32 %x, 1\n  %m1 = and i32 %s1, 1431655765\n  %a = sub i32 %x, %m1\n  %a_lo = and i32 %a, 858993459\n  %s2 = lshr i32 %a, 2\n  %a_hi = and i32 %s2, 858993459\n  %b = add i32 %a_lo, %a_hi\n  %s4 = lshr i32 %b, 4\n  %c0 = add i32 %b, %s4\n  %c = and i32 %c0, 252645135\n  %d = mul i32 %c, 16843009\n  %r = lshr i32 %d, 24\n  ret i32 %r\n}\n=>\ndefine i32 @kernel(i32 %x) {\nentry:\n  ret i32 0\n}\nTransformation doesn't verify!\n\nERROR: Value mismatch\n\nExample:\ni32 %x = #x00000001 (1)\n\nSource:\ni32 %s1 = #x00000000 (0)\ni32 %m1 = #x00000000 (0)\ni32 %a = #x00000001 (1)\ni32 %a_lo = #x00000001 (1)\ni32 %s2 = #x00000000 (0)\ni32 %a_hi = #x00000000 (0)\ni32 %b = #x00000001 (1)\ni32 %s4 = #x00000000 (0)\ni32 %c0 = #x00000001 (1)\ni32 %c = #x00000001 (1)\ni32 %d = #x01010101 (16843009)\ni32 %r = #x00000001 (1)\n\nTarget:\nSource value: #x00000001 (1)\nTarget value: #x00000000 (0)\n\nSummary:\n  0 correct transformations\n  1 incorrect transformations\n  0 failed-to-prove transformations\n  0 Alive2 errors",
+  "baseline_throughput": 4.5,
+  "candidate_sha256": "87f4c728f6fd3162fc216cc8746d29127e1a0834fc226b3e57c40f8e7c880844",
+  "candidate_throughput": 1.0,
+  "correct": true,
+  "score": 4.5,
+  "speedup": 4.5
+}

@@ -1,0 +1,2 @@
+planned: 1 model/effort configs x 1 tasks = 1 Codex calls
+  test-model / high

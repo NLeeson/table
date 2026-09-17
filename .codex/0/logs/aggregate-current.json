@@ -1,0 +1,26 @@
+[
+  {
+    "correct": 5,
+    "correctness_rate": 0.8333333333333334,
+    "geomean_speedup_correct": 0.0,
+    "mean_reasoning_tokens": 521.1666666666666,
+    "mean_score_with_failures": 2.3853383458646618,
+    "mean_tokens_per_score": 280.4400793650794,
+    "median_score_with_failures": 1.6428571428571428,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "tasks": 6
+  },
+  {
+    "correct": 6,
+    "correctness_rate": 1.0,
+    "geomean_speedup_correct": 2.9104436016895328,
+    "mean_reasoning_tokens": 4097.833333333333,
+    "mean_score_with_failures": 4.072510822510822,
+    "mean_tokens_per_score": 2944.6974765974765,
+    "median_score_with_failures": 3.392857142857143,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "max",
+    "tasks": 6
+  }
+]

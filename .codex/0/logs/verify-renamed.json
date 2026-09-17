@@ -1,0 +1,9 @@
+{
+  "alive2_stdout": "Summary:\n  0 correct transformations\n  0 incorrect transformations\n  0 failed-to-prove transformations\n  0 Alive2 errors",
+  "baseline_throughput": 4.5,
+  "candidate_sha256": "87d83439d4438cb4e74f327230a05c3a1eeba4d471381f7a58a5f3721e229a06",
+  "candidate_throughput": 1.0,
+  "correct": true,
+  "score": 4.5,
+  "speedup": 4.5
+}

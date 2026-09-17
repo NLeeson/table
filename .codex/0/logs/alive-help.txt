@@ -1,0 +1,77 @@
+OVERVIEW: Alive2 stand-alone translation validator:
+version v21.0-61-g0dc2be5f
+see alive-tv --version for LLVM version info,
+
+This program takes either one or two LLVM IR files as
+command-line arguments. Both .bc and .ll files are supported.
+
+If two files are provided, alive-tv checks that functions in the
+second file refine functions in the first file, matching up functions
+by name. Functions not found in both files are ignored. It is an error
+for a function to be found in both files unless they have the same
+signature.
+
+If one file is provided, there are two possibilities. If the file
+contains a function called "src" and also a function called "tgt",
+then alive-tv will determine whether src is refined by tgt. It is an
+error if src and tgt do not have the same signature. Otherwise,
+alive-tv will optimize the entire module using an optimization
+pipeline similar to -O2, and then verify that functions in the
+optimized module refine those in the original one. This provides a
+convenient way to demonstrate an existing optimizer bug.
+
+Multiple "src" and "tgt" functions can be specified in the same file
+by postfixing, after "src" and "tgt", either a unique integer or an
+'_' followed by an arbitrary string. For example if the file contains
+the following functions "src", "tgt", "src4", "tgt4", "src_foo",
+"tgt_foo", "src_bar", "tgt5", then the pairs "src" <-> "tgt", "src4"
+<-> "tgt4", and "src_foo" <-> "tgt_foo" will be verified but "src_bar"
+and "tgt5" will unused.
+
+USAGE: alive-tv [options] first_bitcode_file [second_bitcode_file]
+
+OPTIONS:
+
+Alive2 translation validation options:
+
+  --alias-stats                  - Show alias sets statistics
+  --always-verify                - Verify transformations even if they are syntactically equal
+  --bidirectional                - Run refinement check in both directions
+  --dbg                          - Print debugging info
+  --disable-poison-input         - Assume inputs are not poison (default=false)
+  --disable-undef-input          - Assume inputs are not undef (default=false)
+  --disallow-ub-exploitation     - Disallow UB exploitation by optimizations (default=allow)
+  --dot                          - Print .dot files of each function
+  --exit-on-error                - Exit on error
+  --fail-src-ub                  - Fail if source function is always UB (default=false)
+  --func=<function name>         - Specify the name of a function to verify (without @)
+  --max-offset-in-bits=<uint>    - Upper bound for the maximum pointer offset in bits.  Note that this may impact correctness, if values involved in offset computations exceed the maximum.
+  --max-sizet-in-bits=<uint>     - Upper bound for the size of size_t. Note that this may impact correctness if the required address space size exceeds the specified limit.
+  -o <string>                    - Specify output filename
+  --overwrite-reports            - Overwrite existing report files
+  --passes=<optimization passes> - Specify which LLVM passes to run (default=O2). The syntax is described at https://llvm.org/docs/NewPassManager.html#invoking-opt
+  --quiet                        - Quiet mode
+  --report-dir=<directory>       - Save report to disk
+  --save-ir                      - Save LLVM IR into the report directory upon encountering a verification error
+  --se-verbose                   - Symbolic execution verbose mode
+  --skip-smt                     - Skip all SMT queries
+  --smt-bench=<directory>        - Dump smtlib benchmarks
+  --smt-log                      - Log interactions with the SMT solver
+  --smt-max-mem=<MB>             - AMT max memory (approx)
+  --smt-random-seed=<uint>       - Random seed for the SMT solver (default=0)
+  --smt-stats                    - Show SMT statistics
+  --smt-to=<ms>                  - Timeout for SMT queries in ms (default=10000)
+  --smt-verbose                  - SMT verbose mode
+  --src-fn=<string>              - Name of src function (without @)
+  --src-unroll=<uint>            - Unrolling factor for src function (default=0)
+  --tactic-verbose               - SMT Tactic verbose mode
+  --tgt-fn=<string>              - Name of tgt function (without @)
+  --tgt-is-asm                   - Target uses assembly semantics (default=false)
+  --tgt-unroll=<uint>            - Unrolling factor for tgt function (default=0)
+  --time-verify                  - Print time taken to verify each transformation
+
+Generic Options:
+
+  --help                         - Display available options (--help-hidden for more)
+  --help-list                    - Display list of available options (--help-list-hidden for more)
+  --version                      - Display the version of this program

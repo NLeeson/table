@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0ae07-108b-7fc1-8161-23ef39b2f719"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because failed to spawn code-mode host /home/user/workspace/codex/codex-rs/target/release/codex-code-mode-host: host executable was not found. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"ir\":\"; ModuleID = 'optimized'\\n\\ndeclare i32 @llvm.vector.reduce.add.v8i32(<8 x i32>)\\n\\ndefine i32 @kernel(<8 x i32> %v) {\\nentry:\\n  %sum = call i32 @llvm.vector.reduce.add.v8i32(<8 x i32> %v)\\n  ret i32 %sum\\n}\\n\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":12132,"cached_input_tokens":6912,"cache_write_input_tokens":0,"output_tokens":379,"reasoning_output_tokens":277}}

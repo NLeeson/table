@@ -1,0 +1,32 @@
+.E..E.E
+======================================================================
+ERROR: test_all_failed_efficiency_is_undefined (evaluator.tests.test_score.ScoreTests.test_all_failed_efficiency_is_undefined)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 62, in test_all_failed_efficiency_is_undefined
+    self.assertIsNone(summary["reasoning_tokens_per_score_all_attempts"])
+                      ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'reasoning_tokens_per_score_all_attempts'
+
+======================================================================
+ERROR: test_missing_tokens_reports_coverage_and_no_efficiency (evaluator.tests.test_score.ScoreTests.test_missing_tokens_reports_coverage_and_no_efficiency)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 69, in test_missing_tokens_reports_coverage_and_no_efficiency
+    self.assertEqual(summary["reasoning_token_coverage"], 0.5)
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'reasoning_token_coverage'
+
+======================================================================
+ERROR: test_mixed_failure_keeps_correct_only_geomean (evaluator.tests.test_score.ScoreTests.test_mixed_failure_keeps_correct_only_geomean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 53, in test_mixed_failure_keeps_correct_only_geomean
+    self.assertEqual(summary["reasoning_tokens_per_score_all_attempts"], 5050.0)
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'reasoning_tokens_per_score_all_attempts'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+FAILED (errors=3)

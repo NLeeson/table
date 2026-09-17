@@ -1,0 +1,6 @@
+runs/codex-20260917T024925Z/candidates/gpt-5.6-luna__high/bitops_popcount32.ll | 0 correct transformations;0 incorrect transformations;1 failed-to-prove transformations;0 Alive2 errors;
+runs/codex-20260917T024925Z/candidates/gpt-5.6-luna__high/permutations_reverse8_i32.ll | 1 correct transformations;0 incorrect transformations;0 failed-to-prove transformations;0 Alive2 errors;
+runs/codex-20260917T024925Z/candidates/gpt-5.6-luna__high/reductions_sum8_i32.ll | 0 correct transformations;0 incorrect transformations;1 failed-to-prove transformations;0 Alive2 errors;
+runs/codex-20260917T024925Z/candidates/gpt-5.6-luna__high/scans_prefix8_i32.ll | 0 correct transformations;1 incorrect transformations;0 failed-to-prove transformations;0 Alive2 errors;
+runs/codex-20260917T024925Z/candidates/gpt-5.6-luna__high/sorting_selection_median3_i32.ll | 1 correct transformations;0 incorrect transformations;0 failed-to-prove transformations;0 Alive2 errors;
+runs/codex-20260917T024925Z/candidates/gpt-5.6-luna__high/vector_arithmetic_clamp8_i32.ll | 

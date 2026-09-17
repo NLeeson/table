@@ -1,0 +1,1 @@
+{"ir":"declare i32 @llvm.ctpop.i32(i32)\n\ndefine i32 @kernel(i32 %x) {\nentry:\n  %r = call i32 @llvm.ctpop.i32(i32 %x)\n  ret i32 %r\n}\n"}

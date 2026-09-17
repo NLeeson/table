@@ -1,0 +1,1 @@
+{"ir":"define i32 @kernel(i32 %a, i32 %b, i32 %c) {\nentry:\n  %ab = icmp slt i32 %a, %b\n  %lo = select i1 %ab, i32 %a, i32 %b\n  %hi = select i1 %ab, i32 %b, i32 %a\n  %hc = icmp slt i32 %hi, %c\n  %mid = select i1 %hc, i32 %hi, i32 %c\n  %lm = icmp slt i32 %lo, %mid\n  %result = select i1 %lm, i32 %mid, i32 %lo\n  ret i32 %result\n}\n"}

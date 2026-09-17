@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0ae18-2b76-7e03-ad2e-a81822bf6b74"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"ir\":\"define i32 @kernel(<8 x i32> %v) {\\nentry:\\n  %v0 = extractelement <8 x i32> %v, i32 0\\n  %v1 = extractelement <8 x i32> %v, i32 1\\n  %v2 = extractelement <8 x i32> %v, i32 2\\n  %v3 = extractelement <8 x i32> %v, i32 3\\n  %v4 = extractelement <8 x i32> %v, i32 4\\n  %v5 = extractelement <8 x i32> %v, i32 5\\n  %v6 = extractelement <8 x i32> %v, i32 6\\n  %v7 = extractelement <8 x i32> %v, i32 7\\n  %a0 = add i32 %v0, %v1\\n  %a1 = add i32 %v2, %v3\\n  %a2 = add i32 %v4, %v5\\n  %a3 = add i32 %v6, %v7\\n  %b0 = add i32 %a0, %a1\\n  %b1 = add i32 %a2, %a3\\n  %sum = add i32 %b0, %b1\\n  ret i32 %sum\\n}\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13077,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":320,"reasoning_output_tokens":0}}

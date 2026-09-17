@@ -1,0 +1,62 @@
+EFEFE
+======================================================================
+ERROR: test_contracts (unittest.loader._FailedTest.test_contracts)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_contracts
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/loader.py", line 419, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/loader.py", line 362, in _get_module_from_name
+    __import__(name)
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_contracts.py", line 11, in <module>
+    from contracts import ContractError, outcome_fields, validate_attempt  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'contracts'
+
+
+======================================================================
+ERROR: test_missing_tokens_reports_coverage_and_no_efficiency (test_score.ScoreTests.test_missing_tokens_reports_coverage_and_no_efficiency)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 53, in test_missing_tokens_reports_coverage_and_no_efficiency
+    self.assertEqual(summary["reasoning_token_coverage"], 0.5)
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'reasoning_token_coverage'
+
+======================================================================
+ERROR: test_verify (unittest.loader._FailedTest.test_verify)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_verify
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/loader.py", line 419, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/loader.py", line 362, in _get_module_from_name
+    __import__(name)
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_verify.py", line 16, in <module>
+    from verify import parse_alive2_summary  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'parse_alive2_summary' from 'verify' (/home/user/workspace/agentspace/table/evaluator/verify.py)
+
+
+======================================================================
+FAIL: test_all_failed_efficiency_is_undefined (test_score.ScoreTests.test_all_failed_efficiency_is_undefined)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 45, in test_all_failed_efficiency_is_undefined
+    self.assertIsNone(summary["geomean_speedup_correct"])
+AssertionError: 0.0 is not None
+
+======================================================================
+FAIL: test_mixed_failure_keeps_correct_only_geomean (test_score.ScoreTests.test_mixed_failure_keeps_correct_only_geomean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/workspace/agentspace/table/evaluator/tests/test_score.py", line 35, in test_mixed_failure_keeps_correct_only_geomean
+    self.assertEqual(summary["geomean_speedup_correct"], 2.0)
+AssertionError: 0.0 != 2.0
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+FAILED (failures=2, errors=3)

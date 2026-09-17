@@ -1,0 +1,615 @@
+diff --git a/README.md b/README.md
+index e4e5bb2..e5bd6ba 100644
+--- a/README.md
++++ b/README.md
+@@ -18,7 +18,7 @@ The first benchmark target is **semantic-preserving LLVM IR optimization**. A mo
+ For each task:
+ 
+ 1. `llvm-as` / verifier accepts the candidate IR.
+-2. `alive-tv` checks candidate refinement/equivalence against the reference.
++2. `alive-tv` checks candidate refinement/equivalence against the reference. The evaluator requires exactly one correct transformation and rejects counterexamples, failures-to-prove, Alive2 errors, malformed summaries, and zero matched functions.
+ 3. Reference and candidate are lowered with the same frozen LLVM version and flags.
+ 4. `llvm-mca` estimates throughput for the same fixed CPU model.
+ 5. Incorrect/invalid candidates receive a score of `0`.
+@@ -30,20 +30,22 @@ speedup = baseline_throughput / candidate_throughput
+ score   = speedup
+ ```
+ 
+-Aggregate optimization quality should use the geometric mean across tasks, with failed tasks contributing zero to correctness reporting and being tracked separately from the geomean of valid speedups.
++Aggregate optimization quality uses `geomean_speedup_correct`, the geometric mean of verified positive speedups only. `mean_score_with_failures` is the separate failure-inclusive quality metric; it averages every normalized task score, including zero for every non-verified attempt.
+ 
+ ## Reasoning-efficiency metrics
+ 
+-The raw run records retain input, reasoning, and output tokens. The primary reciprocal efficiency metric is:
++The raw run records retain input, reasoning, and output tokens for successful and failed attempts. The primary reciprocal efficiency metric is:
+ 
+ ```text
+-tokens_per_score = reasoning_tokens / score
++reasoning_tokens_per_score_all_attempts =
++    sum(reasoning_tokens for every attempt) / sum(normalized task scores)
+ ```
+ 
+-Lower is better. Across adjacent reasoning tiers we also track:
++Lower is better. Failed attempts therefore retain their token cost in the numerator. The metric is `null` if any attempt lacks reasoning-token usage or if the total earned score is zero; `reasoning_token_coverage` reports completeness. Across adjacent available reasoning tiers we also track:
+ 
+ ```text
+-marginal_tokens_per_score = delta(reasoning_tokens) / delta(score)
++marginal_reasoning_tokens_per_score =
++    delta(mean reasoning tokens) / delta(mean score with failures)
+ ```
+ 
+ This makes diminishing returns from Medium -> High -> xHigh -> Max directly visible.
+@@ -166,6 +168,7 @@ Each model/task attempt should record at least:
+ - model
+ - reasoning effort
+ - task id
++- verification status (`verified`, `incorrect`, `unproven`, `invalid`, or `evaluator_error`)
+ - correctness
+ - baseline and candidate throughput
+ - speedup / score
+diff --git a/benchmark/manifest.json b/benchmark/manifest.json
+index e748585..c02376d 100644
+--- a/benchmark/manifest.json
++++ b/benchmark/manifest.json
+@@ -1,7 +1,7 @@
+ {
+-  "schema_version": 1,
++  "schema_version": 2,
+   "benchmark": "table-irbench-mini",
+-  "benchmark_version": "0.1.0",
++  "benchmark_version": "0.2.0",
+   "description": "Deterministic semantic-preserving LLVM IR optimization benchmark",
+   "task_policy": {
+     "pure_single_function": true,
+@@ -30,10 +30,15 @@
+   ],
+   "scoring": {
+     "correctness_gate": "alive-tv",
++    "verification_statuses": ["verified", "incorrect", "unproven", "invalid", "evaluator_error"],
++    "verified_outcome": "correct=true and finite positive score",
++    "non_verified_outcome": "correct=false and score=0",
+     "performance_metric": "llvm-mca Block RThroughput",
+     "task_score": "baseline_throughput / candidate_throughput",
+     "invalid_score": 0,
+     "aggregate_speedup": "geometric_mean_of_correct_tasks",
+-    "efficiency_metric": "reasoning_tokens / score"
++    "failure_inclusive_quality": "arithmetic_mean_of_all_normalized_task_scores",
++    "efficiency_metric": "sum_reasoning_tokens_all_attempts / sum_normalized_scores",
++    "efficiency_missing_tokens": "null_with_coverage_reported"
+   }
+ }
+diff --git a/benchmark/run_codex.py b/benchmark/run_codex.py
+index 6cffe04..8a50269 100644
+--- a/benchmark/run_codex.py
++++ b/benchmark/run_codex.py
+@@ -19,6 +19,15 @@ MANIFEST = ROOT / "benchmark" / "manifest.json"
+ TASKS_DIR = ROOT / "benchmark" / "tasks"
+ OUTPUT_SCHEMA = ROOT / "benchmark" / "codex_output.schema.json"
+ VERIFY = ROOT / "evaluator" / "verify.py"
++sys.path.insert(0, str(ROOT / "evaluator"))
++
++from contracts import (  # noqa: E402
++    RESULT_SCHEMA_VERSION,
++    ContractError,
++    outcome_fields,
++    validate_attempt,
++)
++
+ VALID_EFFORTS = {"none", "low", "medium", "high", "xhigh", "max"}
+ FORBIDDEN_ITEM_TYPES = {
+     "command_execution",
+@@ -148,19 +157,24 @@ def base_result(
+ ) -> dict[str, Any]:
+     usage = usage or {}
+     toolchain = manifest["toolchain"]
++    if manifest["schema_version"] != RESULT_SCHEMA_VERSION:
++        raise ContractError(
++            f"manifest schema_version must be {RESULT_SCHEMA_VERSION}"
++        )
++    reasoning_tokens = usage.get("reasoning_output_tokens")
+     return {
++        "result_schema_version": RESULT_SCHEMA_VERSION,
+         "benchmark_version": manifest["benchmark_version"],
+         "run_id": run_id,
+         "model": model,
+         "reasoning_effort": effort,
+         "task_id": task_dir.name,
+         "task_seed": load_task_seed(task_dir),
+-        "correct": False,
+-        "score": 0.0,
++        **outcome_fields("invalid"),
+         "input_tokens": int(usage.get("input_tokens", 0) or 0),
+         "cached_input_tokens": int(usage.get("cached_input_tokens", 0) or 0),
+         "cache_write_input_tokens": int(usage.get("cache_write_input_tokens", 0) or 0),
+-        "reasoning_tokens": usage.get("reasoning_output_tokens"),
++        "reasoning_tokens": int(reasoning_tokens) if reasoning_tokens is not None else None,
+         "output_tokens": int(usage.get("output_tokens", 0) or 0),
+         "latency_ms": latency_ms,
+         "cost_usd": None,
+@@ -211,6 +225,8 @@ def main() -> int:
+         pairs = [(m, e) for m in args.model for e in args.effort]
+ 
+     manifest = json.loads(MANIFEST.read_text())
++    if manifest.get("schema_version") != RESULT_SCHEMA_VERSION:
++        parser.error(f"manifest schema_version must be {RESULT_SCHEMA_VERSION}")
+     toolchain = manifest["toolchain"]
+     all_tasks = sorted(p for p in TASKS_DIR.iterdir() if p.is_dir() and (p / "reference.ll").is_file())
+     if args.task:
+@@ -249,6 +265,7 @@ def main() -> int:
+ 
+     run_meta = {
+         "run_id": run_id,
++        "result_schema_version": RESULT_SCHEMA_VERSION,
+         "created_at": datetime.now(timezone.utc).isoformat(),
+         "benchmark": manifest["benchmark"],
+         "benchmark_version": manifest["benchmark_version"],
+@@ -389,19 +406,28 @@ def main() -> int:
+                     text=True,
+                     capture_output=True,
+                 )
+-                try:
+-                    verified = json.loads(verify.stdout)
+-                except json.JSONDecodeError as exc:
++                if verify.returncode != 0:
+                     verified = None
+-                    error = f"evaluator returned invalid JSON: {exc}"
++                    error = f"evaluator exited {verify.returncode}: {verify.stderr.strip()}"
++                    row.update(outcome_fields("evaluator_error"))
++                else:
++                    try:
++                        verified = json.loads(verify.stdout)
++                        validate_attempt(verified)
++                    except (json.JSONDecodeError, ContractError) as exc:
++                        verified = None
++                        error = f"invalid evaluator result: {exc}"
++                        row.update(outcome_fields("evaluator_error"))
+                 if verified is not None:
+                     for key in (
++                        "verification_status",
+                         "correct",
+                         "baseline_throughput",
+                         "candidate_throughput",
+                         "speedup",
+                         "score",
+                         "candidate_sha256",
++                        "alive2_summary",
+                     ):
+                         if key in verified:
+                             row[key] = verified[key]
+@@ -409,12 +435,19 @@ def main() -> int:
+                         error = str(verified["error"])
+ 
+             row["error"] = error
+-            if error is not None or not row.get("correct"):
++            try:
++                validate_attempt(row)
++            except ContractError as exc:
++                row.update(outcome_fields("evaluator_error"))
++                error = f"result contract violation: {exc}"
++                row["error"] = error
++
++            if error is not None or row["verification_status"] != "verified":
+                 failures += 1
+             with results_path.open("a") as f:
+                 f.write(json.dumps(row, sort_keys=True) + "\n")
+ 
+-            status = "PASS" if row.get("correct") and error is None else "FAIL"
++            status = "PASS" if row["verification_status"] == "verified" and error is None else "FAIL"
+             reasoning = row.get("reasoning_tokens")
+             print(
+                 f"  {status} score={row.get('score')} reasoning_tokens={reasoning} latency_ms={latency_ms:.0f}"
+diff --git a/evaluator/score.py b/evaluator/score.py
+index c6208ae..eae4714 100644
+--- a/evaluator/score.py
++++ b/evaluator/score.py
+@@ -11,36 +11,69 @@ from pathlib import Path
+ from statistics import mean, median
+ from typing import Any, Iterable
+ 
++from contracts import RESULT_SCHEMA_VERSION, VERIFIED, ContractError, validate_attempt
++
++EFFORT_ORDER = {
++    name: index
++    for index, name in enumerate(("none", "low", "medium", "high", "xhigh", "max"))
++}
++
+ 
+ def task_score(row: dict[str, Any]) -> float:
+-    if not row.get("correct", False):
+-        return 0.0
+-    score = row.get("score")
+-    if score is not None:
+-        return float(score)
+-    baseline = float(row["baseline_throughput"])
+-    candidate = float(row["candidate_throughput"])
+-    if baseline <= 0 or candidate <= 0:
+-        return 0.0
+-    return baseline / candidate
++    validate_attempt(row)
++    return float(row["score"])
+ 
+ 
+-def tokens_per_score(row: dict[str, Any]) -> float | None:
+-    score = task_score(row)
+-    tokens = row.get("reasoning_tokens")
+-    if score <= 0 or tokens is None:
+-        return None
+-    return float(tokens) / score
++def validate_result_set(rows: list[dict[str, Any]]) -> None:
++    versions: set[str] = set()
++    run_ids: set[object] = set()
++    attempts: set[tuple[object, str, str, str]] = set()
++    task_sets: dict[tuple[str, str], set[str]] = defaultdict(set)
++
++    for row in rows:
++        validate_attempt(row)
++        if row.get("result_schema_version") != RESULT_SCHEMA_VERSION:
++            raise ContractError(
++                f"result_schema_version must be {RESULT_SCHEMA_VERSION}"
++            )
++        version = row.get("benchmark_version")
++        model = row.get("model")
++        effort = row.get("reasoning_effort")
++        task = row.get("task_id")
++        if not all(isinstance(value, str) and value for value in (version, model, effort, task)):
++            raise ContractError(
++                "benchmark_version, model, reasoning_effort, and task_id must be non-empty strings"
++            )
++        versions.add(version)
++        run_ids.add(row.get("run_id"))
++        key = (row.get("run_id"), model, effort, task)
++        if key in attempts:
++            raise ContractError(f"duplicate attempt: {key!r}")
++        attempts.add(key)
++        task_sets[(model, effort)].add(task)
++
++    if len(versions) > 1:
++        raise ContractError(f"mixed benchmark versions: {sorted(versions)!r}")
++    if len(run_ids) > 1:
++        raise ContractError("mixed run ids")
++    distinct_task_sets = {frozenset(tasks) for tasks in task_sets.values()}
++    if len(distinct_task_sets) > 1:
++        raise ContractError("model/reasoning configurations have different task sets")
+ 
+ 
+ def geometric_mean(values: Iterable[float]) -> float | None:
+-    vals = [v for v in values if v > 0]
++    vals = list(values)
+     if not vals:
+         return None
++    if any(v == 0 for v in vals):
++        return 0.0
++    if any(v < 0 for v in vals):
++        raise ValueError("geometric mean is undefined for negative values")
+     return math.exp(sum(math.log(v) for v in vals) / len(vals))
+ 
+ 
+ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
++    validate_result_set(rows)
+     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+     for row in rows:
+         groups[(str(row["model"]), str(row["reasoning_effort"]))].append(row)
+@@ -48,24 +81,63 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+     out: list[dict[str, Any]] = []
+     for (model, effort), group in sorted(groups.items()):
+         scores = [task_score(r) for r in group]
+-        correct_scores = [s for s in scores if s > 0]
+-        tps = [v for r in group if (v := tokens_per_score(r)) is not None]
+-        reasoning = [float(r["reasoning_tokens"]) for r in group if r.get("reasoning_tokens") is not None]
++        correct_rows = [r for r in group if r["verification_status"] == VERIFIED]
++        correct_scores = [task_score(r) for r in correct_rows]
++        reasoning = [
++            float(r["reasoning_tokens"])
++            for r in group
++            if r.get("reasoning_tokens") is not None
++        ]
++        reasoning_coverage = len(reasoning) / len(group) if group else 0.0
++        total_score = sum(scores)
++        all_attempt_efficiency = (
++            sum(reasoning) / total_score
++            if len(reasoning) == len(group) and total_score > 0
++            else None
++        )
+ 
+         out.append(
+             {
+                 "model": model,
+                 "reasoning_effort": effort,
+                 "tasks": len(group),
+-                "correct": len(correct_scores),
+-                "correctness_rate": len(correct_scores) / len(group) if group else 0.0,
++                "correct": len(correct_rows),
++                "correctness_rate": len(correct_rows) / len(group) if group else 0.0,
+                 "geomean_speedup_correct": geometric_mean(correct_scores),
+                 "mean_score_with_failures": mean(scores) if scores else 0.0,
+                 "median_score_with_failures": median(scores) if scores else 0.0,
+                 "mean_reasoning_tokens": mean(reasoning) if reasoning else None,
+-                "mean_tokens_per_score": mean(tps) if tps else None,
++                "reasoning_token_coverage": reasoning_coverage,
++                "reasoning_tokens_per_score_all_attempts": all_attempt_efficiency,
++                "marginal_from_effort": None,
++                "marginal_reasoning_tokens_per_score": None,
+             }
+         )
++
++    by_model: dict[str, list[dict[str, Any]]] = defaultdict(list)
++    for summary in out:
++        by_model[summary["model"]].append(summary)
++    for model_summaries in by_model.values():
++        ordered = sorted(
++            model_summaries,
++            key=lambda summary: EFFORT_ORDER.get(summary["reasoning_effort"], len(EFFORT_ORDER)),
++        )
++        for previous, current in zip(ordered, ordered[1:]):
++            current["marginal_from_effort"] = previous["reasoning_effort"]
++            if (
++                previous["reasoning_token_coverage"] == 1.0
++                and current["reasoning_token_coverage"] == 1.0
++                and previous["mean_reasoning_tokens"] is not None
++                and current["mean_reasoning_tokens"] is not None
++            ):
++                delta_score = (
++                    current["mean_score_with_failures"] - previous["mean_score_with_failures"]
++                )
++                if delta_score > 0:
++                    delta_tokens = (
++                        current["mean_reasoning_tokens"] - previous["mean_reasoning_tokens"]
++                    )
++                    current["marginal_reasoning_tokens_per_score"] = delta_tokens / delta_score
+     return out
+ 
+ 
+diff --git a/evaluator/verify.py b/evaluator/verify.py
+index 631cc1d..2a87de6 100644
+--- a/evaluator/verify.py
++++ b/evaluator/verify.py
+@@ -1,20 +1,53 @@
+ #!/usr/bin/env python3
+-"""Run the v0 correctness gate and deterministic static throughput score."""
++"""Run the correctness gate and deterministic static throughput score."""
+ 
+ from __future__ import annotations
+ 
+ import argparse
+ import hashlib
+ import json
++import re
+ import subprocess
+ import tempfile
+ from pathlib import Path
+ 
++from contracts import outcome_fields
+ from mca import block_rthroughput, speedup
+ 
++_ALIVE2_SUMMARY = re.compile(
++    r"^Summary:\s*\n"
++    r"\s*(?P<correct>\d+) correct transformations\s*\n"
++    r"\s*(?P<incorrect>\d+) incorrect transformations\s*\n"
++    r"\s*(?P<unproven>\d+) failed-to-prove transformations\s*\n"
++    r"\s*(?P<errors>\d+) Alive2 errors\s*\Z",
++    re.MULTILINE,
++)
+ 
+-def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
+-    return subprocess.run(cmd, check=True, text=True, capture_output=True)
++
++def run(cmd: list[str], *, timeout: float) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(cmd, check=True, text=True, capture_output=True, timeout=timeout)
++
++
++def parse_alive2_summary(stdout: str) -> tuple[str, dict[str, int] | None]:
++    """Classify the single-function Alive2 summary, failing closed."""
++    matches = list(_ALIVE2_SUMMARY.finditer(stdout))
++    if len(matches) != 1:
++        return "evaluator_error", None
++
++    counts = {name: int(value) for name, value in matches[0].groupdict().items()}
++    if counts["errors"]:
++        return "evaluator_error", counts
++    if counts["incorrect"]:
++        return "incorrect", counts
++    if counts["unproven"]:
++        return "unproven", counts
++    if counts == {"correct": 1, "incorrect": 0, "unproven": 0, "errors": 0}:
++        return "verified", counts
++    return "invalid", counts
++
++
++def print_result(result: dict[str, object]) -> None:
++    print(json.dumps(result, indent=2, sort_keys=True))
+ 
+ 
+ def sha256(path: Path) -> str:
+@@ -35,48 +68,90 @@ def main() -> None:
+     parser.add_argument("--llc", default="llc")
+     parser.add_argument("--llvm-as", default="llvm-as")
+     parser.add_argument("--llc-opt", default="-O3")
++    parser.add_argument("--function", default="kernel")
++    parser.add_argument("--tool-timeout", type=float, default=60.0)
+     args = parser.parse_args()
+ 
+     result: dict[str, object] = {
+-        "correct": False,
+-        "score": 0.0,
+         "candidate_sha256": sha256(args.candidate),
++        **outcome_fields("evaluator_error"),
+     }
+ 
+     try:
+         # Structural/type validity first.
+-        run([args.llvm_as, str(args.candidate), "-o", "/dev/null"])
++        run(
++            [args.llvm_as, str(args.candidate), "-o", "/dev/null"],
++            timeout=args.tool_timeout,
++        )
++    except subprocess.CalledProcessError as exc:
++        result.update(outcome_fields("invalid"))
++        result["error"] = str(exc)
++        result["stderr"] = (exc.stderr or "").strip()
++        print_result(result)
++        return
++    except (OSError, subprocess.TimeoutExpired) as exc:
++        result.update(outcome_fields("evaluator_error"))
++        result["error"] = str(exc)
++        if isinstance(exc, subprocess.TimeoutExpired):
++            result["stderr"] = (exc.stderr or "").strip()
++        print_result(result)
++        return
+ 
+-        # Alive2 is the hard semantic gate. Any non-zero exit fails the task.
+-        alive = run([args.alive_tv, str(args.reference), str(args.candidate)])
++    try:
++        alive = run(
++            [
++                args.alive_tv,
++                f"--func={args.function}",
++                str(args.reference),
++                str(args.candidate),
++            ],
++            timeout=args.tool_timeout,
++        )
+         result["alive2_stdout"] = alive.stdout.strip()
++    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
++        result.update(outcome_fields("evaluator_error"))
++        result["error"] = str(exc)
++        if isinstance(exc, (subprocess.CalledProcessError, subprocess.TimeoutExpired)):
++            result["stderr"] = (exc.stderr or "").strip()
++        print_result(result)
++        return
++
++    status, counts = parse_alive2_summary(alive.stdout)
++    result["alive2_summary"] = counts
++    if status != "verified":
++        result.update(outcome_fields(status))
++        result["error"] = f"Alive2 verification status: {status}"
++        print_result(result)
++        return
+ 
++    try:
+         with tempfile.TemporaryDirectory(prefix="table-irbench-") as tmp:
+             tmpdir = Path(tmp)
+             ref_asm = tmpdir / "reference.s"
+             cand_asm = tmpdir / "candidate.s"
+ 
+             common = [args.llc, args.llc_opt, f"-mtriple={args.triple}", f"-mcpu={args.mcpu}"]
+-            run([*common, str(args.reference), "-o", str(ref_asm)])
+-            run([*common, str(args.candidate), "-o", str(cand_asm)])
++            run([*common, str(args.reference), "-o", str(ref_asm)], timeout=args.tool_timeout)
++            run([*common, str(args.candidate), "-o", str(cand_asm)], timeout=args.tool_timeout)
+ 
+-            baseline = block_rthroughput(ref_asm, mcpu=args.mcpu)
+-            candidate = block_rthroughput(cand_asm, mcpu=args.mcpu)
++            baseline = block_rthroughput(ref_asm, mcpu=args.mcpu, timeout=args.tool_timeout)
++            candidate = block_rthroughput(cand_asm, mcpu=args.mcpu, timeout=args.tool_timeout)
++            measured_speedup = speedup(baseline, candidate)
+             result.update(
+                 {
+-                    "correct": True,
+                     "baseline_throughput": baseline,
+                     "candidate_throughput": candidate,
+-                    "speedup": speedup(baseline, candidate),
+-                    "score": speedup(baseline, candidate),
++                    "speedup": measured_speedup,
++                    **outcome_fields("verified", score=measured_speedup),
+                 }
+             )
+-    except (subprocess.CalledProcessError, ValueError) as exc:
++    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired, ValueError) as exc:
++        result.update(outcome_fields("evaluator_error"))
+         result["error"] = str(exc)
+-        if isinstance(exc, subprocess.CalledProcessError):
++        if isinstance(exc, (subprocess.CalledProcessError, subprocess.TimeoutExpired)):
+             result["stderr"] = (exc.stderr or "").strip()
+ 
+-    print(json.dumps(result, indent=2, sort_keys=True))
++    print_result(result)
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/results/schema.json b/results/schema.json
+index 67ef8dd..c4f9ff5 100644
+--- a/results/schema.json
++++ b/results/schema.json
+@@ -5,10 +5,12 @@
+   "type": "object",
+   "required": [
+     "benchmark_version",
++    "result_schema_version",
+     "model",
+     "reasoning_effort",
+     "task_id",
+     "correct",
++    "verification_status",
+     "score",
+     "input_tokens",
+     "reasoning_tokens",
+@@ -17,6 +19,7 @@
+     "candidate_sha256"
+   ],
+   "properties": {
++    "result_schema_version": {"const": 2},
+     "benchmark_version": {"type": "string"},
+     "run_id": {"type": ["string", "null"]},
+     "model": {"type": "string"},
+@@ -27,6 +30,10 @@
+     "task_id": {"type": "string"},
+     "task_seed": {"type": ["integer", "string", "null"]},
+     "correct": {"type": "boolean"},
++    "verification_status": {
++      "type": "string",
++      "enum": ["verified", "incorrect", "unproven", "invalid", "evaluator_error"]
++    },
+     "baseline_throughput": {"type": ["number", "null"], "exclusiveMinimum": 0},
+     "candidate_throughput": {"type": ["number", "null"], "exclusiveMinimum": 0},
+     "speedup": {"type": ["number", "null"], "minimum": 0},
+@@ -47,7 +54,35 @@
+     "codex_version": {"type": ["string", "null"]},
+     "prompt_version": {"type": ["string", "null"]},
+     "forbidden_tool_types": {"type": "array", "items": {"type": "string"}},
++    "alive2_summary": {
++      "type": ["object", "null"],
++      "properties": {
++        "correct": {"type": "integer", "minimum": 0},
++        "incorrect": {"type": "integer", "minimum": 0},
++        "unproven": {"type": "integer", "minimum": 0},
++        "errors": {"type": "integer", "minimum": 0}
++      },
++      "required": ["correct", "incorrect", "unproven", "errors"],
++      "additionalProperties": false
++    },
+     "error": {"type": ["string", "null"]}
+   },
+-  "additionalProperties": true
++  "additionalProperties": true,
++  "allOf": [
++    {
++      "if": {"properties": {"verification_status": {"const": "verified"}}},
++      "then": {
++        "properties": {
++          "correct": {"const": true},
++          "score": {"type": "number", "exclusiveMinimum": 0}
++        }
++      },
++      "else": {
++        "properties": {
++          "correct": {"const": false},
++          "score": {"const": 0}
++        }
++      }
++    }
++  ]
+ }
+diff --git a/runs/README.md b/runs/README.md
+index 7a16aed..b36d0f4 100644
+--- a/runs/README.md
++++ b/runs/README.md
+@@ -15,3 +15,9 @@ runs/<run_id>/
+ `run.json` should freeze the model/config matrix, benchmark manifest commit, generated task set, toolchain versions, pricing snapshot (if cost is reported), and invocation parameters.
+ 
+ Do not overwrite prior runs. New benchmark/toolchain/model settings should produce a new run id so historical comparisons remain auditable.
++
++## Invalid v0.1 results
++
++All benchmark-version `0.1.0` runs in this repository are invalid for correctness and score comparison. Their evaluator treated `alive-tv` process success as proof, but the pinned Alive2 executable returns status zero for counterexamples, failures-to-prove, and zero matched functions. These runs must not be passed through the v2 scorer or presented as benchmark results.
++
++Saved candidates may be re-verified under benchmark `0.2.0`, but that produces a new run/result record; historical JSONL files remain immutable audit artifacts.
