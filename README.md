@@ -121,6 +121,19 @@ This single-call POC is the gate before spending time on multiple efforts, model
 
 `benchmark/run_codex.py` starts a fresh ephemeral Codex session for every task/configuration. It pins the model and reasoning effort explicitly, ignores user/project config and rules, disables web search, runs from a fresh temporary directory, captures the final answer through a JSON schema, and invalidates an attempt if the Codex JSONL stream shows shell commands, file edits, MCP/plugin calls, subagents, or web search.
 
+Use `--codex` to select an alternative Codex executable and supply fixed arguments. The value is parsed with shell-style quoting and used as the command prefix for both `--version` and `exec` invocations:
+
+```bash
+python3 benchmark/run_codex.py \
+  --codex '/path/to/codex1 --foo --bar baz' \
+  --model gpt-5.6-luna \
+  --effort high \
+  --task bitops_popcount32 \
+  --dry-run
+```
+
+Quote an executable path or argument again inside the value when it contains spaces, for example `--codex '"/path/with spaces/codex" --foo "two words"'`. Shell operators and expansions are not evaluated.
+
 After the one-call POC passes, multiple `--model` and `--effort` flags form a Cartesian product. To inspect a larger plan without spending inference:
 
 ```bash

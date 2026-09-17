@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -31,6 +32,16 @@ PROMPT_VERSION = "codex-ir-v1"
 
 def slug(value: str) -> str:
     return "".join(c if c.isalnum() or c in "._-" else "_" for c in value)
+
+
+def parse_codex_command(value: str) -> list[str]:
+    try:
+        command = shlex.split(value)
+    except ValueError as exc:
+        raise ValueError(f"invalid --codex command: {exc}") from exc
+    if not command:
+        raise ValueError("--codex command must not be empty")
+    return command
 
 
 def run_text(cmd: list[str], *, cwd: Path | None = None) -> str | None:
@@ -173,10 +184,19 @@ def main() -> int:
     parser.add_argument("--effort", action="append", choices=sorted(VALID_EFFORTS))
     parser.add_argument("--task", action="append", help="task id; default is all frozen tasks")
     parser.add_argument("--run-id")
-    parser.add_argument("--codex", default="codex")
+    parser.add_argument(
+        "--codex",
+        default="codex",
+        help="Codex executable and optional fixed arguments, parsed with shell-style quoting",
+    )
     parser.add_argument("--timeout", type=float, default=900.0, help="seconds per Codex invocation")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+
+    try:
+        codex_command = parse_codex_command(args.codex)
+    except ValueError as exc:
+        parser.error(str(exc))
 
     if args.matrix:
         if args.effort:
@@ -225,7 +245,7 @@ def main() -> int:
     (run_dir / "responses").mkdir()
     (run_dir / "stderr").mkdir()
     results_path = run_dir / "results.jsonl"
-    codex_version = run_text([args.codex, "--version"])
+    codex_version = run_text([*codex_command, "--version"])
 
     run_meta = {
         "run_id": run_id,
@@ -268,7 +288,7 @@ def main() -> int:
             stderr_path = run_dir / "stderr" / f"{config_key}__{task_dir.name}.txt"
 
             cmd = [
-                args.codex,
+                *codex_command,
                 "exec",
                 "--ephemeral",
                 "--ignore-user-config",
